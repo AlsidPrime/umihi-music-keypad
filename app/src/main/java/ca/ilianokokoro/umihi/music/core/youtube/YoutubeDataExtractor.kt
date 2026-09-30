@@ -1,5 +1,9 @@
 package ca.ilianokokoro.umihi.music.core.youtube
 
+import ca.ilianokokoro.umihi.music.models.enums.AudioQuality
+import ca.ilianokokoro.umihi.music.models.enums.selectAudioStream
+import ca.ilianokokoro.umihi.music.data.repositories.DatastoreRepository
+
 import android.content.Context
 import android.widget.Toast
 import androidx.core.net.toUri
@@ -1033,7 +1037,8 @@ object YoutubeDataExtractor {
     suspend fun getSongPlayerUrl(
         context: Context,
         song: Song,
-        allowLocal: Boolean = false
+        allowLocal: Boolean = false,
+        forDownload: Boolean = false,
     ): String {
         val localSongRepository = AppDatabase.getInstance(context).songRepository()
         var savedSong: Song? = null
@@ -1055,18 +1060,21 @@ object YoutubeDataExtractor {
                 return savedSong.audioFilePath
             }
 
-            if (savedSong.streamUrl != null) {
-                if (isYoutubeUrlValid(savedSong.streamUrl)) {
-                    printd("[${song.youtubeId}] Got url from saved")
-                    return savedSong.streamUrl
-                }
-                printd("[${song.youtubeId}] Saved url was invalid")
-            }
         }
 
-        val newUri = getSongUrlFromYoutube(song)
-        localSongRepository.setStreamUrl(songId = song.youtubeId, streamUrl = newUri)
-        printd("[${song.youtubeId}] Got url from YouTube and saved song")
+        val settings = DatastoreRepository(context).getSettings()
+        val quality = if (forDownload) settings.downloadQuality else settings.streamingQuality
+        // The legacy database URL is highest quality. Limited modes resolve independently,
+        // so streaming and downloads cannot reuse each other's quality choice.
+        val storedUrl = savedSong?.streamUrl
+        if (quality == AudioQuality.BEST && storedUrl != null && isYoutubeUrlValid(storedUrl)) {
+            return storedUrl
+        }
+        val newUri = getSongUrlFromYoutube(song, quality)
+        if (quality == AudioQuality.BEST) {
+            localSongRepository.setStreamUrl(songId = song.youtubeId, streamUrl = newUri)
+        }
+        printd("[${song.youtubeId}] Got url from YouTube")
         return newUri
     }
 
@@ -1124,11 +1132,12 @@ object YoutubeDataExtractor {
 
     private suspend fun getSongUrlFromYoutube(
         song: Song,
+        quality: AudioQuality,
         retries: Int = Constants.YoutubeApi.RETRY_COUNT
     ): String {
         var lastError: Throwable? = null
 
-        val fastUrl = resolveAnonymousStreamUrl(song.youtubeId)
+        val fastUrl = resolveAnonymousStreamUrl(song.youtubeId, quality)
 
         if (fastUrl != null) {
             return fastUrl
@@ -1138,7 +1147,7 @@ object YoutubeDataExtractor {
         repeat(retries) { attempt ->
             try {
                 return withContext(Dispatchers.IO) {
-                    resolveNewPipeStreamUrl(song)
+                    resolveNewPipeStreamUrl(song, quality)
                 }
             } catch (e: Throwable) {
                 lastError = e
@@ -1162,6 +1171,7 @@ object YoutubeDataExtractor {
 
     private suspend fun resolveAnonymousStreamUrl(
         videoId: String,
+        quality: AudioQuality,
     ): String? = withContext(Dispatchers.IO) {
         suspend fun executeRequest(client: JsonObject): String {
             val response = YoutubeApiClient.getPlayerInfo(
@@ -1170,7 +1180,7 @@ object YoutubeDataExtractor {
                 visitorData = visitorData,
             )
 
-            return extractStreamFromRawResponse(response)
+            return extractStreamFromRawResponse(response, quality)
         }
 
         val softCap = Constants.YoutubeApi.SOFT_TRIES_PER_CLIENT
@@ -1219,15 +1229,15 @@ object YoutubeDataExtractor {
         null
     }
 
-    private fun resolveNewPipeStreamUrl(song: Song): String {
+    private fun resolveNewPipeStreamUrl(song: Song, quality: AudioQuality): String {
         val service = ServiceList.YouTube
         val extractor = service.getStreamExtractor(song.youtubeUrl)
 
         extractor.fetchPage()
 
-        val bestAudioStream = extractor.audioStreams
-            .filter { it.content.isNotBlank() }
-            .maxByOrNull { it.averageBitrate }
+        val bestAudioStream = selectAudioStream(
+            extractor.audioStreams.filter { it.content.isNotBlank() }, quality,
+        ) { it.averageBitrate.toLong() * 1000L }
             ?: error("No valid audio streams found")
 
         return bestAudioStream.content
@@ -1235,6 +1245,7 @@ object YoutubeDataExtractor {
 
     private suspend fun extractStreamFromRawResponse(
         text: String,
+        quality: AudioQuality,
     ): String {
         val root = Json.parseToJsonElement(text).jsonObject
 
@@ -1260,7 +1271,7 @@ object YoutubeDataExtractor {
             ?.jsonPrimitive
             ?.contentOrNull
 
-        val directUrl = root["streamingData"]
+        val formats = root["streamingData"]
             ?.safeObject()
             ?.get("adaptiveFormats")
             ?.safeArray()
@@ -1275,9 +1286,10 @@ object YoutubeDataExtractor {
                     ?.contentOrNull
                     ?.startsWith("audio/", ignoreCase = true) == true
             }
-            ?.maxByOrNull {
-                it["bitrate"]?.jsonPrimitive?.intOrNull ?: 0
-            }
+            ?.toList().orEmpty()
+        val directUrl = selectAudioStream(formats, quality) {
+            (it["bitrate"]?.jsonPrimitive?.intOrNull ?: 0).toLong()
+        }
             ?.get("url")
             ?.jsonPrimitive
             ?.contentOrNull

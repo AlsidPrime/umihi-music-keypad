@@ -2,6 +2,7 @@ package ca.ilianokokoro.umihi.music.ui.screens.settings
 
 import android.app.Application
 import android.text.format.Formatter
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -49,6 +50,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ca.ilianokokoro.umihi.music.BuildConfig
 import ca.ilianokokoro.umihi.music.R
+import ca.ilianokokoro.umihi.music.ui.components.keypad.isKeypadScreen
 import ca.ilianokokoro.umihi.music.core.Constants
 import ca.ilianokokoro.umihi.music.core.DiagnosticLog
 import ca.ilianokokoro.umihi.music.core.helpers.UmihiHelper.usedFraction
@@ -76,6 +78,7 @@ import ca.ilianokokoro.umihi.music.ui.screens.settings.components.SettingsSectio
 @Composable
 fun SettingsScreen(
     openAuthScreen: () -> Unit,
+    onBack: () -> Unit,
     application: Application,
     sharedViewModel: SharedViewModel,
     settingsViewModel: SettingsViewModel = viewModel(
@@ -101,6 +104,15 @@ fun SettingsScreen(
     val folderPicker = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocumentTree()
     ) { uri -> settingsViewModel.onDownloadFolderPicked(uri) }
+
+    if (isKeypadScreen()) {
+        KeypadSettingsScreen(uiState, settingsViewModel, onBack, openAuthScreen, onPickFolder = { uri ->
+            runCatching { folderPicker.launch(uri) }.onFailure {
+                Toast.makeText(context, R.string.keypad_folder_picker_unavailable, Toast.LENGTH_LONG).show()
+            }
+        })
+        return
+    }
 
     FadingStatusBarWrapper { statusBarHeight ->
         Scaffold(

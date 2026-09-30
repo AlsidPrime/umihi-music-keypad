@@ -31,6 +31,7 @@ import ca.ilianokokoro.umihi.music.data.repositories.DatastoreRepository.Prefere
 import ca.ilianokokoro.umihi.music.models.Cookies
 import ca.ilianokokoro.umihi.music.models.UmihiSettings
 import ca.ilianokokoro.umihi.music.models.enums.ThemeMode
+import ca.ilianokokoro.umihi.music.models.enums.AudioQuality
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -56,6 +57,8 @@ class DatastoreRepository(private val context: Context) {
         val APP_VOLUME = intPreferencesKey(Constants.Datastore.APP_VOLUME_KEY)
         val THEME_MODE = stringPreferencesKey(Constants.Datastore.THEME_MODE_KEY)
         val DOWNLOAD_LOCATION = stringPreferencesKey(Constants.Datastore.DOWNLOAD_LOCATION)
+        val STREAMING_QUALITY = stringPreferencesKey("streaming_audio_quality")
+        val DOWNLOAD_QUALITY = stringPreferencesKey("download_audio_quality")
     }
 
     suspend fun <T> save(key: Preferences.Key<T>, value: T) {
@@ -108,7 +111,9 @@ class DatastoreRepository(private val context: Context) {
             thumbnailCacheSizeMB = thumbnailCacheSize,
             appVolume = appVolume,
             themeMode = themeMode,
-            downloadLocation = downloadLocation
+            downloadLocation = downloadLocation,
+            streamingQuality = AudioQuality.fromString(it[PreferenceKeys.STREAMING_QUALITY]),
+            downloadQuality = AudioQuality.fromString(it[PreferenceKeys.DOWNLOAD_QUALITY]),
         )
     }
 

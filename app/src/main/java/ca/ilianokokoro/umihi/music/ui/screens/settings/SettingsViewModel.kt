@@ -148,8 +148,10 @@ class SettingsViewModel(
             FileHelper.clearDownloadFolder(_application, downloadLocation)
             AppDatabase.clearDownloads(_application)
 
-            ExoCache.getInstance(_application).clear()
-            CoilImageLoader.clear(_application)
+            withContext(Dispatchers.IO) {
+                ExoCache.getInstance(_application).clear()
+                CoilImageLoader.clear(_application)
+            }
 
             Toast.makeText(
                 _application,
@@ -224,28 +226,28 @@ class SettingsViewModel(
         viewModelScope.launch {
             when (cacheType) {
                 CacheType.AUDIO -> {
-                    updateSetting(
+                    datastoreRepository.save(
                         DatastoreRepository.PreferenceKeys.EXOPLAYER_CACHE_SIZE,
-                        sizeMB
+                        sizeMB.coerceIn(Constants.Cache.Audio.MIN_SIZE_MB, Constants.Cache.Audio.MAX_SIZE_MB)
                     )
                 }
 
                 CacheType.THUMBNAIL -> {
-                    updateSetting(
+                    datastoreRepository.save(
                         DatastoreRepository.PreferenceKeys.THUMBNAIL_CACHE_SIZE,
-                        sizeMB
+                        sizeMB.coerceIn(Constants.Cache.Thumbnail.MIN_SIZE_MB, Constants.Cache.Thumbnail.MAX_SIZE_MB)
                     )
                 }
             }
             updateShowCacheSizeInputSheet(false)
-            refreshStorageUsage()
+            getSettings()
         }
     }
 
     fun clearCache() {
         viewModelScope.launch {
-            ExoCache.getInstance(_application).clear()
             withContext(Dispatchers.IO) {
+                ExoCache.getInstance(_application).clear()
                 CoilImageLoader.clear(_application)
             }
             Toast.makeText(

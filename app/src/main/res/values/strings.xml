@@ -1,4 +1,24 @@
 <resources>
+    <string name="keypad_downloads">Downloads</string>
+    <string name="keypad_storage">Storage</string>
+    <string name="keypad_on">On</string>
+    <string name="keypad_off">Off</string>
+    <string name="keypad_settings_hint">OK Change · ← Back</string>
+    <string name="keypad_toggle_state">%1$s · → Details</string>
+    <string name="keypad_text_read_hint">↑↓ Select/Scroll · ← Back</string>
+    <string name="keypad_details">Details</string>
+    <string name="keypad_streaming_quality">Streaming quality</string>
+    <string name="keypad_download_quality">Download quality</string>
+    <string name="keypad_quality_best">Best available</string>
+    <string name="keypad_quality_balanced">Balanced (128 kbps target)</string>
+    <string name="keypad_quality_saver">Data saver (64 kbps target)</string>
+    <string name="keypad_quality_help">Selects the highest available bitrate within the target. If none fits, uses the lowest available bitrate. Best available keeps the original highest-bitrate behavior. Changes apply to newly resolved streams and new downloads. Existing downloaded files keep their original quality.</string>
+    <string name="keypad_cache_less">%1$d MB less</string>
+    <string name="keypad_cache_more">%1$d MB more</string>
+    <string name="keypad_cache_restart">New cache limits apply after restarting the app.</string>
+    <string name="keypad_use_internal">Use internal storage</string>
+    <string name="keypad_choose_folder">Choose folder</string>
+    <string name="keypad_folder_picker_unavailable">No folder picker is available. Keep internal storage.</string>
     <string name="keypad_player_navigation_hint">← Back at left edge</string>
     <string name="keypad_dialog_hint">↑↓ Select · OK Choose · ← Back</string>
     <string name="keypad_playlist_song_hint">OK Play · → Options · ← Back</string>
