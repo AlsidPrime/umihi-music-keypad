@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ca.ilianokokoro.umihi.music.R
+import ca.ilianokokoro.umihi.music.ui.components.keypad.isKeypadScreen
 import ca.ilianokokoro.umihi.music.core.Constants
 import ca.ilianokokoro.umihi.music.core.helpers.UmihiHelper.speedLabel
 import ca.ilianokokoro.umihi.music.ui.components.SheetHeader
@@ -38,6 +39,10 @@ fun SpeedSelectorBottomSheet(
     onSelectSpeed: (speed: Float) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    if (isKeypadScreen()) {
+        KeypadSpeed(currentSpeed, onSelectSpeed) { changeVisibility(false) }
+        return
+    }
     ModalBottomSheet(
         onDismissRequest = { changeVisibility(false) },
         sheetState = rememberBottomSheetState(

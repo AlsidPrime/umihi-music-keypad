@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ca.ilianokokoro.umihi.music.R
+import ca.ilianokokoro.umihi.music.ui.components.keypad.isKeypadScreen
 import ca.ilianokokoro.umihi.music.models.AddToPlaylistOption
 import ca.ilianokokoro.umihi.music.models.Song
 import ca.ilianokokoro.umihi.music.ui.components.ErrorMessage
@@ -68,6 +69,14 @@ fun AddToPlaylistBottomSheet(
     )
     val uiState = addToPlaylistViewModel.uiState.collectAsStateWithLifecycle().value
 
+    LaunchedEffect(song.youtubeId) {
+        addToPlaylistViewModel.load(song.youtubeId)
+    }
+    if (isKeypadScreen()) {
+        KeypadAddToPlaylist(song, uiState, addToPlaylistViewModel, onClose, onStateChanged)
+        return
+    }
+
     val sheetState = rememberBottomSheetState(
         initialValue = SheetValue.Hidden,
         enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
@@ -78,10 +87,6 @@ fun AddToPlaylistBottomSheet(
 
     fun dismiss() {
         scope.launch { sheetState.hide() }.invokeOnCompletion { onClose() }
-    }
-
-    LaunchedEffect(song.youtubeId) {
-        addToPlaylistViewModel.load(song.youtubeId)
     }
 
     ModalBottomSheet(

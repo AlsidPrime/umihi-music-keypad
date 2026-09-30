@@ -36,6 +36,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -92,10 +94,14 @@ fun PlayerScreen(
         !uiState.isSleepTimerModalShown && !uiState.showVolumeDialog
     val keypadFocusRequester = remember { FocusRequester() }
     val playFocusRequester = remember { FocusRequester() }
+    var keypadReturnFocus by remember(uiState.isLoggedIn) { mutableStateOf<FocusRequester?>(null) }
     val windowFocused = LocalWindowInfo.current.isWindowFocused
     LaunchedEffect(shortcutsEnabled, windowFocused, useKeypadLayout, uiState.lyricsShown) {
         if (shortcutsEnabled && windowFocused) {
-            if (useKeypadLayout) playFocusRequester.requestFocus() else keypadFocusRequester.requestFocus()
+            if (useKeypadLayout) {
+                val target = if (uiState.lyricsShown) playFocusRequester else keypadReturnFocus ?: playFocusRequester
+                target.requestFocus()
+            } else keypadFocusRequester.requestFocus()
         }
     }
 
@@ -138,6 +144,7 @@ fun PlayerScreen(
                 progress = playbackProgress,
                 playerViewModel = playerViewModel,
                 initialFocusRequester = playFocusRequester,
+                onControlFocused = { keypadReturnFocus = it },
                 onClose = onBack,
                 modifier = modifier.fillMaxSize().padding(paddingValues),
             )

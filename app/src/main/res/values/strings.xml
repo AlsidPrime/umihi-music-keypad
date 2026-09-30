@@ -1,4 +1,18 @@
 <resources>
+    <string name="keypad_dialog_hint">↑↓ Select · OK Choose · ← Back</string>
+    <string name="keypad_playlist_song_hint">OK Play · → Options · ← Back</string>
+    <string name="keypad_required_title">Enter a title</string>
+    <string name="keypad_optional">Optional</string>
+    <string name="keypad_save">Save</string>
+    <string name="keypad_saving">Saving…</string>
+    <string name="keypad_text_hint">Type with TT9 · ↓ Save/Cancel</string>
+    <string name="keypad_playlist_select_hint">OK Toggle · ✓ Selected · Confirm to save</string>
+    <string name="keypad_volume_lower">Lower by 10%</string>
+    <string name="keypad_volume_higher">Raise by 10%</string>
+    <string name="keypad_volume_current">Current: %1$d%%</string>
+    <string name="keypad_timer_shorter">5 minutes less</string>
+    <string name="keypad_timer_longer">5 minutes more</string>
+    <string name="keypad_timer_remaining">%1$d:%2$02d remaining</string>
     <string name="app_name" translatable="false">Umihi Keypad</string>
     <string name="keypad_previous">4 Prev</string>
     <string name="keypad_play_pause">5 Play/pause</string>

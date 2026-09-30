@@ -1,18 +1,24 @@
 package ca.ilianokokoro.umihi.music.ui.screens.playlist
 
+import android.view.KeyEvent
 import androidx.compose.foundation.layout.*
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,6 +40,18 @@ internal fun KeypadPlaylistScreen(state: PlaylistState, info: PlaylistInfo, view
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val browseFocus = remember { FocusRequester() }
+    val backFocus = remember { FocusRequester() }
+    var focusArea by rememberSaveable { mutableStateOf("browse") }
+    val windowFocused = LocalWindowInfo.current.isWindowFocused
+    LaunchedEffect(windowFocused) {
+        if (windowFocused) {
+            when {
+                focusArea == "back" -> backFocus.requestFocus()
+                focusArea == "filter" && state.showingSearch -> searchFocus.requestFocus()
+                else -> browseFocus.requestFocus()
+            }
+        }
+    }
     var playlistOptions by remember { mutableStateOf(false) }
     var songOptions by remember { mutableStateOf<Song?>(null) }
     var confirmation by remember { mutableStateOf<PlaylistConfirmation?>(null) }
@@ -70,20 +88,49 @@ internal fun KeypadPlaylistScreen(state: PlaylistState, info: PlaylistInfo, view
         if (state.screenState is ScreenState.Error) {
             add(KeypadEntry("retry", stringResource(R.string.retry), onClick = viewModel::getPlaylistInfo))
         }
-        add(KeypadEntry("back", stringResource(R.string.keypad_back), onClick = onBack))
+    }
+
+    BackHandler(enabled = state.showingSearch && !playlistOptions && songOptions == null && confirmation == null) {
+        viewModel.hideSearch()
+        focusManager.clearFocus()
+        browseFocus.requestFocus()
     }
 
     Column(Modifier.fillMaxSize().statusBarsPadding().padding(4.dp)) {
-        Text(info.title, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            KeypadButton(stringResource(R.string.keypad_back), onBack,
+                Modifier.width(64.dp).keypadPlayback().focusRequester(backFocus)
+                    .onFocusChanged { if (it.isFocused) focusArea = "back" }.focusProperties {
+                    up = FocusRequester.Cancel
+                    left = FocusRequester.Cancel
+                    down = if (state.showingSearch) searchFocus else browseFocus
+                    right = browseFocus
+                })
+            Text(info.title, modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleSmall,
+                maxLines = 2, overflow = TextOverflow.Ellipsis)
+        }
         Text(stringResource(when {
             state.screenState is ScreenState.Loading || state.isRefreshing -> R.string.keypad_loading
             state.screenState is ScreenState.Error -> R.string.keypad_load_failed
             songs.isEmpty() -> if (state.searchQuery.isBlank()) R.string.empty_playlist else R.string.no_results
-            else -> R.string.keypad_song_hint
+            else -> R.string.keypad_playlist_song_hint
         }), style = MaterialTheme.typography.labelSmall)
         if (state.showingSearch) {
             OutlinedTextField(state.searchQuery, viewModel::onSearchQueryChange,
-                modifier = Modifier.fillMaxWidth().focusRequester(searchFocus).focusProperties { down = browseFocus },
+                modifier = Modifier.fillMaxWidth().focusRequester(searchFocus)
+                    .onFocusChanged { if (it.isFocused) focusArea = "filter" }.focusProperties {
+                    up = backFocus
+                    down = browseFocus
+                }.onPreviewKeyEvent { event ->
+                    val key = event.nativeKeyEvent
+                    if (key.hasNoModifiers() && key.keyCode == KeyEvent.KEYCODE_DPAD_DOWN) {
+                        if (key.action == KeyEvent.ACTION_DOWN && key.repeatCount == 0) {
+                            focusManager.clearFocus()
+                            browseFocus.requestFocus()
+                        }
+                        true
+                    } else false
+                },
                 singleLine = true, textStyle = MaterialTheme.typography.bodySmall,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = {
@@ -91,9 +138,12 @@ internal fun KeypadPlaylistScreen(state: PlaylistState, info: PlaylistInfo, view
                     browseFocus.requestFocus()
                 }))
         }
-        KeypadList(entries, Modifier.weight(1f).fillMaxWidth(), focusRequester = browseFocus,
-            autoFocus = !state.showingSearch, onLeft = onBack, playbackShortcuts = true,
-            onUpBoundary = if (state.showingSearch) ({ searchFocus.requestFocus() }) else null)
+        KeypadList(entries, Modifier.weight(1f).fillMaxWidth()
+            .onFocusChanged { if (it.hasFocus) focusArea = "browse" }, focusRequester = browseFocus,
+            autoFocus = false, onLeft = onBack, playbackShortcuts = true,
+            onUpBoundary = {
+                if (state.showingSearch) searchFocus.requestFocus() else backFocus.requestFocus()
+            })
     }
 
     if (playlistOptions) {

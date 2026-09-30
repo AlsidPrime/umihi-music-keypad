@@ -10,6 +10,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.res.stringResource
+import ca.ilianokokoro.umihi.music.R
 
 @Composable
 internal fun KeypadDialog(title: String, entries: List<KeypadEntry>, onDismiss: () -> Unit,
@@ -18,6 +20,7 @@ internal fun KeypadDialog(title: String, entries: List<KeypadEntry>, onDismiss: 
         properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = false)) {
         Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface).padding(8.dp)) {
             Text(title, style = MaterialTheme.typography.titleSmall, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(stringResource(R.string.keypad_dialog_hint), style = MaterialTheme.typography.labelSmall)
             message?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
             KeypadList(entries, Modifier.weight(1f).fillMaxWidth(), registerNavigation = false,
                 onBoundary = {}, onLeft = onDismiss, initialKey = initialKey,

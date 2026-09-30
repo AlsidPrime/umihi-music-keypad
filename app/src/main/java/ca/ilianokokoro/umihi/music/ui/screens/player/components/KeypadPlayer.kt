@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -40,13 +41,10 @@ internal fun KeypadPlayer(
     progress: PlaybackProgress,
     playerViewModel: PlayerViewModel,
     initialFocusRequester: FocusRequester,
+    onControlFocused: (FocusRequester) -> Unit,
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    if (uiState.lyricsShown) {
-        KeypadLyrics(uiState, progress, playerViewModel::toggleLyrics, initialFocusRequester, modifier)
-        return
-    }
     val song = uiState.queue.getOrNull(uiState.currentIndex)
     val context = LocalContext.current
     val controller by PlayerManager.controllerState.collectAsStateWithLifecycle()
@@ -101,6 +99,12 @@ internal fun KeypadPlayer(
         }
     }
 
+    // Keep the button requesters alive while lyrics are open, so returning focus is valid.
+    if (uiState.lyricsShown) {
+        KeypadLyrics(uiState, progress, playerViewModel::toggleLyrics, initialFocusRequester, modifier)
+        return
+    }
+
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()).focusGroup().padding(4.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -119,6 +123,9 @@ internal fun KeypadPlayer(
                         onClick = action.onClick,
                         modifier = Modifier.weight(1f)
                             .focusRequester(targets[row][column])
+                            .onFocusChanged {
+                                if (it.isFocused) onControlFocused(targets[row][column])
+                            }
                             .focusProperties {
                                 left = targets[row].getOrNull(column - 1) ?: FocusRequester.Cancel
                                 right = targets[row].getOrNull(column + 1) ?: FocusRequester.Cancel
