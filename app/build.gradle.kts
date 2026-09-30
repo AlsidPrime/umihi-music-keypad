@@ -90,6 +90,7 @@ android {
 
         debug {
             isDebuggable = true
+            applicationIdSuffix = ".keypad"
         }
 
         create("diagnostic") {
