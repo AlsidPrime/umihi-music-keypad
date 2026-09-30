@@ -1,6 +1,7 @@
 package ca.ilianokokoro.umihi.music.ui.navigation
 
 import android.app.Application
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -12,6 +13,9 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +49,10 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import ca.ilianokokoro.umihi.music.R
 import ca.ilianokokoro.umihi.music.core.Constants
+import ca.ilianokokoro.umihi.music.core.managers.PlayerManager
+import ca.ilianokokoro.umihi.music.ui.components.keypad.KeypadNavigationFocus
+import ca.ilianokokoro.umihi.music.ui.components.keypad.LocalKeypadNavigationFocus
+import ca.ilianokokoro.umihi.music.ui.components.keypad.isKeypadScreen
 import ca.ilianokokoro.umihi.music.core.helpers.LogHelper.printe
 import ca.ilianokokoro.umihi.music.ui.components.miniplayer.MiniPlayerWrapper
 import ca.ilianokokoro.umihi.music.ui.navigation.viewmodels.SharedViewModel
@@ -60,9 +69,16 @@ import ca.ilianokokoro.umihi.music.ui.screens.settings.SettingsScreen
 fun NavigationRoot(modifier: Modifier = Modifier) {
     val sharedViewModel: SharedViewModel = viewModel()
     val backStack = rememberNavBackStack(HomeScreenKey)
+    fun openTab(key: NavKey) {
+        val existing = backStack.indexOfLast { it == key }
+        if (existing < 0) backStack.add(key)
+        else while (backStack.lastIndex > existing) backStack.removeAt(backStack.lastIndex)
+    }
     val app = LocalContext.current.applicationContext as Application
     val currentScreen = backStack.last()
     val screenConfig = rememberScreenUiConfig(currentScreen)
+    val keypad = isKeypadScreen()
+    val keypadNavigationFocus = remember { KeypadNavigationFocus() }
 
     var showFullPlayer by remember { mutableStateOf(false) }
     var bottomBarHeightPixels by remember { mutableIntStateOf(0) }
@@ -94,118 +110,134 @@ fun NavigationRoot(modifier: Modifier = Modifier) {
                 .padding(paddingValues)
         ) {
 
-            NavDisplay(
-                modifier = Modifier
-                    .fillMaxSize(),
-                backStack = backStack,
-                onBack = backStack::safePop,
-                entryDecorators = listOf(
-                    rememberSaveableStateHolderNavEntryDecorator(),
-                    rememberViewModelStoreNavEntryDecorator(),
-                ),
-                transitionSpec = {
-                    (scaleIn(
-                        animationSpec = tween(Constants.Animation.NAVIGATION_DURATION),
-                        initialScale = 0.85f
-                    ) +
-                            fadeIn(animationSpec = tween(Constants.Animation.NAVIGATION_DURATION))) togetherWith
-                            (scaleOut(
-                                animationSpec = tween(Constants.Animation.NAVIGATION_DURATION),
-                                targetScale = 1.1f
+            CompositionLocalProvider(LocalKeypadNavigationFocus provides if (keypad) keypadNavigationFocus else null) {
+                Column(Modifier.fillMaxSize().then(if (keypad) Modifier.navigationBarsPadding() else Modifier)) {
+                    NavDisplay(
+                        modifier = Modifier
+                            .weight(1f).fillMaxWidth(),
+                        backStack = backStack,
+                        onBack = backStack::safePop,
+                        entryDecorators = listOf(
+                            rememberSaveableStateHolderNavEntryDecorator(),
+                            rememberViewModelStoreNavEntryDecorator(),
+                        ),
+                        transitionSpec = {
+                            (scaleIn(
+                                animationSpec = tween(if (keypad) 0 else Constants.Animation.NAVIGATION_DURATION),
+                                initialScale = 0.85f
                             ) +
-                                    fadeOut(animationSpec = tween(Constants.Animation.NAVIGATION_DURATION)))
-                },
-                popTransitionSpec = {
-                    (scaleIn(
-                        animationSpec = tween(Constants.Animation.NAVIGATION_DURATION),
-                        initialScale = 1.1f
-                    ) +
-                            fadeIn(animationSpec = tween(Constants.Animation.NAVIGATION_DURATION))) togetherWith
-                            (scaleOut(
-                                animationSpec = tween(Constants.Animation.NAVIGATION_DURATION),
-                                targetScale = 0.85f
+                                    fadeIn(animationSpec = tween(if (keypad) 0 else Constants.Animation.NAVIGATION_DURATION))) togetherWith
+                                    (scaleOut(
+                                        animationSpec = tween(if (keypad) 0 else Constants.Animation.NAVIGATION_DURATION),
+                                        targetScale = 1.1f
+                                    ) +
+                                            fadeOut(animationSpec = tween(if (keypad) 0 else Constants.Animation.NAVIGATION_DURATION)))
+                        },
+                        popTransitionSpec = {
+                            (scaleIn(
+                                animationSpec = tween(if (keypad) 0 else Constants.Animation.NAVIGATION_DURATION),
+                                initialScale = 1.1f
                             ) +
-                                    fadeOut(animationSpec = tween(Constants.Animation.NAVIGATION_DURATION)))
-                },
-                predictivePopTransitionSpec = {
-                    (scaleIn(
-                        animationSpec = tween(Constants.Animation.NAVIGATION_DURATION),
-                        initialScale = 1.1f
-                    ) +
-                            fadeIn(animationSpec = tween(Constants.Animation.NAVIGATION_DURATION))) togetherWith
-                            (scaleOut(
+                                    fadeIn(animationSpec = tween(if (keypad) 0 else Constants.Animation.NAVIGATION_DURATION))) togetherWith
+                                    (scaleOut(
+                                        animationSpec = tween(if (keypad) 0 else Constants.Animation.NAVIGATION_DURATION),
+                                        targetScale = 0.85f
+                                    ) +
+                                            fadeOut(animationSpec = tween(if (keypad) 0 else Constants.Animation.NAVIGATION_DURATION)))
+                        },
+                        predictivePopTransitionSpec = {
+                            (scaleIn(
                                 animationSpec = tween(Constants.Animation.NAVIGATION_DURATION),
-                                targetScale = 0.85f
+                                initialScale = 1.1f
                             ) +
-                                    fadeOut(animationSpec = tween(Constants.Animation.NAVIGATION_DURATION)))
-                },
-                entryProvider = { key ->
-                    when (key) {
+                                    fadeIn(animationSpec = tween(Constants.Animation.NAVIGATION_DURATION))) togetherWith
+                                    (scaleOut(
+                                        animationSpec = tween(Constants.Animation.NAVIGATION_DURATION),
+                                        targetScale = 0.85f
+                                    ) +
+                                            fadeOut(animationSpec = tween(Constants.Animation.NAVIGATION_DURATION)))
+                        },
+                        entryProvider = { key ->
+                            when (key) {
 
-                        is HomeScreenKey -> NavEntry(key) {
-                            HomeScreen(
-                                sharedViewModel = sharedViewModel,
-                                onPlaylistPressed = { playlist ->
-                                    backStack.add(PlaylistScreenKey(playlistInfo = playlist))
-                                },
-                                onLoginPressed = { backStack.add(AuthScreenKey) },
-                                application = app
-                            )
+                                is HomeScreenKey -> NavEntry(key) {
+                                    HomeScreen(
+                                        sharedViewModel = sharedViewModel,
+                                        onPlaylistPressed = { playlist ->
+                                            backStack.add(PlaylistScreenKey(playlistInfo = playlist))
+                                        },
+                                        onLoginPressed = { backStack.add(AuthScreenKey) },
+                                        application = app
+                                    )
+                                }
+
+                                is SettingsScreenKey -> NavEntry(key) {
+                                    SettingsScreen(
+                                        sharedViewModel = sharedViewModel,
+                                        openAuthScreen = { backStack.add(AuthScreenKey) },
+                                        application = app
+                                    )
+                                }
+
+                                is PlaylistScreenKey -> NavEntry(key) {
+                                    PlaylistScreen(
+                                        sharedViewModel = sharedViewModel,
+                                        playlistInfo = key.playlistInfo,
+                                        onBack = backStack::safePop,
+                                        onOpenPlayer = { showFullPlayer = true },
+                                        application = app
+                                    )
+                                }
+
+                                is AuthScreenKey -> NavEntry(key) {
+                                    AuthScreen(
+                                        onBack = backStack::safePop,
+                                        sharedViewModel = sharedViewModel,
+                                        application = app
+                                    )
+                                }
+
+                                is SearchScreenKey -> NavEntry(key) {
+                                    SearchScreen(
+                                        application = app,
+                                    )
+                                }
+
+                                else -> throw RuntimeException(
+                                    app.getString(
+                                        R.string.invalid_navkey,
+                                        key
+                                    )
+                                )
+                            }
                         }
-
-                        is SettingsScreenKey -> NavEntry(key) {
-                            SettingsScreen(
-                                sharedViewModel = sharedViewModel,
-                                openAuthScreen = { backStack.add(AuthScreenKey) },
-                                application = app
-                            )
-                        }
-
-                        is PlaylistScreenKey -> NavEntry(key) {
-                            PlaylistScreen(
-                                sharedViewModel = sharedViewModel,
-                                playlistInfo = key.playlistInfo,
-                                onBack = backStack::safePop,
-                                onOpenPlayer = { showFullPlayer = true },
-                                application = app
-                            )
-                        }
-
-                        is AuthScreenKey -> NavEntry(key) {
-                            AuthScreen(
-                                onBack = backStack::safePop,
-                                sharedViewModel = sharedViewModel,
-                                application = app
-                            )
-                        }
-
-                        is SearchScreenKey -> NavEntry(key) {
-                            SearchScreen(
-                                application = app,
-                            )
-                        }
-
-                        else -> throw RuntimeException(
-                            app.getString(
-                                R.string.invalid_navkey,
-                                key
-                            )
-                        )
+                    )
+                    if (keypad) {
+                        KeypadNavigationBar(keypadNavigationFocus,
+                            onHome = { openTab(HomeScreenKey) },
+                            onSearch = { openTab(SearchScreenKey) },
+                            onSettings = { openTab(SettingsScreenKey) },
+                            onPlayer = {
+                                if ((PlayerManager.currentController?.mediaItemCount ?: 0) > 0) showFullPlayer = true
+                                else Toast.makeText(app, app.getString(R.string.keypad_start_song), Toast.LENGTH_SHORT).show()
+                            })
                     }
                 }
-            )
+            }
 
-            MiniPlayerWrapper(
-                showMiniPlayer = screenConfig.showMiniPlayer && !showFullPlayer,
-                onMiniPlayerPressed = { showFullPlayer = true },
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = miniPlayerBottomPadding)
-            )
+            if (!keypad) {
+                MiniPlayerWrapper(
+                    showMiniPlayer = screenConfig.showMiniPlayer && !showFullPlayer,
+                    onMiniPlayerPressed = { showFullPlayer = true },
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = miniPlayerBottomPadding)
+                )
+            }
 
 
             AnimatedVisibility(
-                visible = screenConfig.showBottomBar,
+                visible = !keypad && screenConfig.showBottomBar,
                 enter = slideInVertically(
                     animationSpec = tween(Constants.Animation.NAVIGATION_DURATION),
                     initialOffsetY = { it }

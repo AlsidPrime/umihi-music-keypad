@@ -62,6 +62,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import ca.ilianokokoro.umihi.music.R
 import ca.ilianokokoro.umihi.music.core.Constants
 import ca.ilianokokoro.umihi.music.core.managers.PlayerManager
+import ca.ilianokokoro.umihi.music.ui.components.keypad.isKeypadScreen
 import ca.ilianokokoro.umihi.music.models.Song
 import ca.ilianokokoro.umihi.music.ui.components.SquareImage
 import ca.ilianokokoro.umihi.music.ui.components.bottomsheet.QueueBottomSheet
@@ -86,8 +87,7 @@ fun PlayerScreen(
     val uiState = playerViewModel.uiState.collectAsStateWithLifecycle().value
     val configuration = LocalConfiguration.current
     val orientation = configuration.orientation
-    val useKeypadLayout = minOf(configuration.screenWidthDp, configuration.screenHeightDp) <= 360 &&
-        maxOf(configuration.screenWidthDp, configuration.screenHeightDp) <= 480 && !uiState.lyricsShown
+    val useKeypadLayout = isKeypadScreen()
     val currentSong = uiState.queue.getOrNull(uiState.currentIndex)
 
     // Keep number shortcuts inside the full player, away from TT9 text entry.
@@ -96,7 +96,7 @@ fun PlayerScreen(
     val keypadFocusRequester = remember { FocusRequester() }
     val playFocusRequester = remember { FocusRequester() }
     val windowFocused = LocalWindowInfo.current.isWindowFocused
-    LaunchedEffect(shortcutsEnabled, windowFocused, useKeypadLayout) {
+    LaunchedEffect(shortcutsEnabled, windowFocused, useKeypadLayout, uiState.lyricsShown) {
         if (shortcutsEnabled && windowFocused) {
             if (useKeypadLayout) playFocusRequester.requestFocus() else keypadFocusRequester.requestFocus()
         }

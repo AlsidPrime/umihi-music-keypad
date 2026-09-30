@@ -59,6 +59,7 @@ import ca.ilianokokoro.umihi.music.ui.components.SearchBar
 import ca.ilianokokoro.umihi.music.ui.components.bottomsheet.addtoplaylist.AddToPlaylistBottomSheet
 import ca.ilianokokoro.umihi.music.ui.components.dialog.ConfirmDialog
 import ca.ilianokokoro.umihi.music.ui.components.song.SongListItem
+import ca.ilianokokoro.umihi.music.ui.components.keypad.isKeypadScreen
 import ca.ilianokokoro.umihi.music.ui.navigation.viewmodels.SharedViewModel
 import ca.ilianokokoro.umihi.music.ui.screens.playlist.components.PlaylistHeader
 
@@ -94,6 +95,25 @@ fun PlaylistScreen(
         if (uiState.showingSearch) {
             focusRequester.requestFocus()
         }
+    }
+
+    if (isKeypadScreen()) {
+        KeypadPlaylistScreen(uiState, playlistInfo, playlistViewModel, focusRequester, onBack, onOpenPlayer,
+            onAddToPlaylist = { addToPlaylistSong = it }, onRemoveSong = { songToRemove = it })
+        addToPlaylistSong?.let { song ->
+            AddToPlaylistBottomSheet(song = song, application = application,
+                onClose = { addToPlaylistSong = null }, onStateChanged = {
+                    playlistViewModel.refreshPlaylistInfo()
+                    sharedViewModel.requestPlaylistRefresh()
+                })
+        }
+        songToRemove?.let { song ->
+            ConfirmDialog(title = stringResource(R.string.remove_from_playlist),
+                text = stringResource(R.string.remove_song_from_playlist_confirm_text),
+                onConfirm = { playlistViewModel.removeSongFromPlaylist(song); songToRemove = null },
+                onDismiss = { songToRemove = null })
+        }
+        return
     }
 
     Box(
@@ -376,4 +396,3 @@ fun PlaylistScreen(
         }
     }
 }
-
