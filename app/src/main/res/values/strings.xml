@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name" translatable="false">Umihi Keypad</string>
+    <string name="keypad_previous">4 Prev</string>
+    <string name="keypad_play_pause">5 Play/pause</string>
+    <string name="keypad_next">6 Next</string>
     <string name="playlists">Playlists</string>
     <string name="settings">Settings</string>
     <string name="back_description">Previous screen</string>
