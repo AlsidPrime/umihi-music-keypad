@@ -38,6 +38,6 @@ internal fun KeypadHomeScreen(state: HomeState, onPlaylist: (PlaylistInfo) -> Un
             else -> R.string.keypad_list_hint
         }
         Text(stringResource(status), style = MaterialTheme.typography.labelSmall)
-        KeypadList(entries, Modifier.weight(1f).fillMaxWidth())
+        KeypadList(entries, Modifier.weight(1f).fillMaxWidth(), playbackShortcuts = true)
     }
 }

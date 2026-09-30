@@ -92,7 +92,8 @@ internal fun KeypadPlaylistScreen(state: PlaylistState, info: PlaylistInfo, view
                 }))
         }
         KeypadList(entries, Modifier.weight(1f).fillMaxWidth(), focusRequester = browseFocus,
-            autoFocus = !state.showingSearch, onLeft = onBack)
+            autoFocus = !state.showingSearch, onLeft = onBack, playbackShortcuts = true,
+            onUpBoundary = if (state.showingSearch) ({ searchFocus.requestFocus() }) else null)
     }
 
     if (playlistOptions) {

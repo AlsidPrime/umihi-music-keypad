@@ -2,7 +2,6 @@ package ca.ilianokokoro.umihi.music.ui.screens.player
 
 import android.app.Application
 import android.content.res.Configuration
-import android.view.KeyEvent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -33,7 +32,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -43,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
@@ -54,15 +51,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ca.ilianokokoro.umihi.music.R
 import ca.ilianokokoro.umihi.music.core.Constants
-import ca.ilianokokoro.umihi.music.core.managers.PlayerManager
 import ca.ilianokokoro.umihi.music.ui.components.keypad.isKeypadScreen
+import ca.ilianokokoro.umihi.music.ui.components.keypad.keypadPlayback
 import ca.ilianokokoro.umihi.music.models.Song
 import ca.ilianokokoro.umihi.music.ui.components.SquareImage
 import ca.ilianokokoro.umihi.music.ui.components.bottomsheet.QueueBottomSheet
@@ -89,8 +83,11 @@ fun PlayerScreen(
     val orientation = configuration.orientation
     val useKeypadLayout = isKeypadScreen()
     val currentSong = uiState.queue.getOrNull(uiState.currentIndex)
+    LaunchedEffect(uiState.queue.isEmpty()) {
+        if (uiState.queue.isEmpty()) onBack()
+    }
 
-    // Keep number shortcuts inside the full player, away from TT9 text entry.
+    // Dialogs own their input scope; no shortcuts are attached to text fields.
     val shortcutsEnabled = !uiState.isSpeedSelectorShown && !uiState.isQueueModalShown &&
         !uiState.isSleepTimerModalShown && !uiState.showVolumeDialog
     val keypadFocusRequester = remember { FocusRequester() }
@@ -102,49 +99,12 @@ fun PlayerScreen(
         }
     }
 
-    // Close the screen if resumed with an empty queue
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME && uiState.queue.isEmpty() && currentSong == null) {
-                onBack()
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
     val playbackProgress by playerViewModel.playbackProgress.collectAsState()
 
 
     Scaffold(
         modifier = Modifier
-            .onPreviewKeyEvent { event ->
-                val keyEvent = event.nativeKeyEvent
-                val isShortcut = when (keyEvent.keyCode) {
-                    KeyEvent.KEYCODE_4, KeyEvent.KEYCODE_NUMPAD_4,
-                    KeyEvent.KEYCODE_5, KeyEvent.KEYCODE_NUMPAD_5,
-                    KeyEvent.KEYCODE_6, KeyEvent.KEYCODE_NUMPAD_6 -> true
-                    else -> false
-                }
-                if (!shortcutsEnabled || !isShortcut || !keyEvent.hasNoModifiers()) {
-                    return@onPreviewKeyEvent false
-                }
-                // Consume both halves of the press; a held key only acts once.
-                if (keyEvent.action == KeyEvent.ACTION_DOWN && keyEvent.repeatCount == 0) {
-                    when (keyEvent.keyCode) {
-                        KeyEvent.KEYCODE_4, KeyEvent.KEYCODE_NUMPAD_4 ->
-                            PlayerManager.skipToPrevious()
-                        KeyEvent.KEYCODE_5, KeyEvent.KEYCODE_NUMPAD_5 ->
-                            PlayerManager.currentController?.let { controller ->
-                                // Playback intent also handles a press while buffering.
-                                if (controller.playWhenReady) controller.pause() else controller.play()
-                            }
-                        KeyEvent.KEYCODE_6, KeyEvent.KEYCODE_NUMPAD_6 ->
-                            PlayerManager.skipToNext()
-                    }
-                }
-                true
-            }
+            .keypadPlayback(shortcutsEnabled)
             .focusRequester(keypadFocusRequester)
             .focusable(enabled = shortcutsEnabled)
             .padding(

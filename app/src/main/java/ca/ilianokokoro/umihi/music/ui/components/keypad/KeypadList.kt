@@ -49,6 +49,8 @@ internal data class KeypadEntry(
     val onClick: () -> Unit,
 )
 
+internal data class KeypadSelectionRequest(val key: String, val sequence: Int)
+
 /** One focused list owns its cursor, including rows not currently composed. */
 @Composable
 internal fun KeypadList(
@@ -61,6 +63,9 @@ internal fun KeypadList(
     onBoundary: (() -> Unit)? = null,
     onLeft: (() -> Unit)? = null,
     followKey: String? = null,
+    playbackShortcuts: Boolean = false,
+    onUpBoundary: (() -> Unit)? = null,
+    selectionRequest: KeypadSelectionRequest? = null,
 ) {
     val navigation = if (registerNavigation) LocalKeypadNavigationFocus.current else null
     val listState = rememberLazyListState()
@@ -88,6 +93,12 @@ internal fun KeypadList(
     LaunchedEffect(followKey, hasFocus) {
         if (!hasFocus && followKey != null && followKey in keys) selectedKey = followKey
     }
+    LaunchedEffect(selectionRequest) {
+        selectionRequest?.let { request ->
+            val index = keys.indexOf(request.key)
+            if (index >= 0 && enabled[index]) selectedKey = request.key
+        }
+    }
     LaunchedEffect(selectedIndex, windowFocused) {
         val index = selectedIndex ?: return@LaunchedEffect
         // Avoid moving the viewport when the selected row is already fully visible.
@@ -107,6 +118,7 @@ internal fun KeypadList(
         contentPadding = PaddingValues(4.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = modifier
+            .keypadPlayback(playbackShortcuts)
             .onPreviewKeyEvent { event ->
                 val key = event.nativeKeyEvent
                 val code = key.keyCode
@@ -119,7 +131,10 @@ internal fun KeypadList(
                         KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN -> {
                             val next = moveEntrySelection(enabled, selectedIndex,
                                 if (code == KeyEvent.KEYCODE_DPAD_UP) -1 else 1)
-                            if (next == null) leaveList() else selectedKey = keys[next]
+                            if (next == null) {
+                                if (code == KeyEvent.KEYCODE_DPAD_UP && onUpBoundary != null) onUpBoundary()
+                                else leaveList()
+                            } else selectedKey = keys[next]
                         }
                         KeyEvent.KEYCODE_DPAD_LEFT -> if (key.repeatCount == 0) {
                             if (onLeft != null) onLeft() else leaveList()

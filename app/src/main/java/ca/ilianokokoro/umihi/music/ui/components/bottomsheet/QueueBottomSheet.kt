@@ -34,6 +34,7 @@ import ca.ilianokokoro.umihi.music.core.managers.PlayerManager
 import ca.ilianokokoro.umihi.music.models.Song
 import ca.ilianokokoro.umihi.music.ui.components.SheetHeader
 import ca.ilianokokoro.umihi.music.ui.components.song.QueueSongListItem
+import ca.ilianokokoro.umihi.music.ui.components.keypad.isKeypadScreen
 import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
@@ -47,6 +48,10 @@ fun QueueBottomSheet(
     currentIndex: Int,
     modifier: Modifier = Modifier
 ) {
+    if (isKeypadScreen()) {
+        KeypadQueue(songs, currentIndex, onClose = { changeVisibility(false) })
+        return
+    }
     val hapticFeedback = LocalHapticFeedback.current
 
     var mutableSongList by remember(songs) { mutableStateOf(songs) }

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
     private val _uiState = MutableStateFlow(SearchState())
@@ -21,6 +22,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
     private val datastoreRepository = DatastoreRepository(application)
     val songRepository = SongRepository(application)
+    private var searchJob: Job? = null
 
     init {
         observeLoginState()
@@ -36,8 +38,11 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
 
 
     fun search() {
-        viewModelScope.launch {
-            if (_uiState.value.search.isBlank()) {
+        // Only the newest submitted query may replace the visible results.
+        searchJob?.cancel()
+        val query = _uiState.value.search.trim()
+        searchJob = viewModelScope.launch {
+            if (query.isBlank()) {
                 _uiState.update {
                     _uiState.value.copy(
                         screenState =
@@ -47,7 +52,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 return@launch
             }
 
-            songRepository.search(_uiState.value.search).collect { apiResult ->
+            songRepository.search(query).collect { apiResult ->
                 _uiState.update {
                     _uiState.value.copy(
                         screenState = when (apiResult) {

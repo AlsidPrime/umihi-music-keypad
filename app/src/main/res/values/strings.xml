@@ -20,6 +20,12 @@
     <string name="keypad_close_search">Close search</string>
     <string name="keypad_back">Back</string>
     <string name="keypad_explicit">Explicit</string>
+    <string name="keypad_move_up">Move earlier</string>
+    <string name="keypad_move_down">Move later</string>
+    <string name="keypad_edit_query">Edit search</string>
+    <string name="keypad_query">Song or artist</string>
+    <string name="keypad_search_hint">Type with TT9 · ↓ Search button</string>
+    <string name="keypad_queue_hint">OK Play · → Options · ← Close</string>
     <string name="playlists">Playlists</string>
     <string name="settings">Settings</string>
     <string name="back_description">Previous screen</string>

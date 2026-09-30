@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import ca.ilianokokoro.umihi.music.R
 import ca.ilianokokoro.umihi.music.ui.components.keypad.KeypadButton
 import ca.ilianokokoro.umihi.music.ui.components.keypad.KeypadNavigationFocus
+import ca.ilianokokoro.umihi.music.ui.components.keypad.keypadPlayback
 
 @Composable
 internal fun KeypadNavigationBar(focus: KeypadNavigationFocus, onHome: () -> Unit,
@@ -21,7 +22,7 @@ internal fun KeypadNavigationBar(focus: KeypadNavigationFocus, onHome: () -> Uni
     val targets = remember(focus) { listOf(focus.navigation, FocusRequester(), FocusRequester(), FocusRequester()) }
     val actions = listOf(R.string.home to onHome, R.string.search to onSearch,
         R.string.settings to onSettings, R.string.keypad_player to onPlayer)
-    Row(Modifier.padding(4.dp), horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+    Row(Modifier.keypadPlayback().padding(4.dp), horizontalArrangement = Arrangement.spacedBy(3.dp)) {
         actions.forEachIndexed { index, (label, action) ->
             KeypadButton(stringResource(label), action, Modifier.weight(1f)
                 .focusRequester(targets[index]).focusProperties {

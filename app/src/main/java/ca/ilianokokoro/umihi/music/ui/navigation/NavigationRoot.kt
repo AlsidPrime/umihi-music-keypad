@@ -200,6 +200,7 @@ fun NavigationRoot(modifier: Modifier = Modifier) {
                                 is SearchScreenKey -> NavEntry(key) {
                                     SearchScreen(
                                         application = app,
+                                        onOpenPlayer = { showFullPlayer = true },
                                     )
                                 }
 
