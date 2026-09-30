@@ -234,6 +234,8 @@ fun NavigationRoot(modifier: Modifier = Modifier) {
 
     if (showFullPlayer) {
         ModalBottomSheet(
+            // The default handle can take D-pad focus outside PlayerScreen.
+            dragHandle = null,
             sheetMaxWidth = Dp.Unspecified,
             onDismissRequest = {
                 showFullPlayer = false

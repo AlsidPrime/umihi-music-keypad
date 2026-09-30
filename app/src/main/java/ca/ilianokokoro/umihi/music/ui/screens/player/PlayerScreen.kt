@@ -70,6 +70,7 @@ import ca.ilianokokoro.umihi.music.ui.components.bottomsheet.SpeedSelectorBottom
 import ca.ilianokokoro.umihi.music.ui.components.bottomsheet.VolumeBottomSheet
 import ca.ilianokokoro.umihi.music.ui.components.song.ExplicitBadge
 import ca.ilianokokoro.umihi.music.ui.screens.player.components.PlayerControls
+import ca.ilianokokoro.umihi.music.ui.screens.player.components.KeypadPlayer
 import ca.ilianokokoro.umihi.music.ui.screens.player.components.TopPlayer
 
 @Composable
@@ -83,17 +84,21 @@ fun PlayerScreen(
     )
 ) {
     val uiState = playerViewModel.uiState.collectAsStateWithLifecycle().value
-    val orientation = LocalConfiguration.current.orientation
+    val configuration = LocalConfiguration.current
+    val orientation = configuration.orientation
+    val useKeypadLayout = minOf(configuration.screenWidthDp, configuration.screenHeightDp) <= 360 &&
+        maxOf(configuration.screenWidthDp, configuration.screenHeightDp) <= 480 && !uiState.lyricsShown
     val currentSong = uiState.queue.getOrNull(uiState.currentIndex)
 
     // Keep number shortcuts inside the full player, away from TT9 text entry.
     val shortcutsEnabled = !uiState.isSpeedSelectorShown && !uiState.isQueueModalShown &&
         !uiState.isSleepTimerModalShown && !uiState.showVolumeDialog
     val keypadFocusRequester = remember { FocusRequester() }
+    val playFocusRequester = remember { FocusRequester() }
     val windowFocused = LocalWindowInfo.current.isWindowFocused
-    LaunchedEffect(shortcutsEnabled, windowFocused) {
+    LaunchedEffect(shortcutsEnabled, windowFocused, useKeypadLayout) {
         if (shortcutsEnabled && windowFocused) {
-            keypadFocusRequester.requestFocus()
+            if (useKeypadLayout) playFocusRequester.requestFocus() else keypadFocusRequester.requestFocus()
         }
     }
 
@@ -167,7 +172,16 @@ fun PlayerScreen(
             }
         },
     ) { paddingValues ->
-        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+        if (useKeypadLayout) {
+            KeypadPlayer(
+                uiState = uiState,
+                progress = playbackProgress,
+                playerViewModel = playerViewModel,
+                initialFocusRequester = playFocusRequester,
+                onClose = onBack,
+                modifier = modifier.fillMaxSize().padding(paddingValues),
+            )
+        } else if (orientation == Configuration.ORIENTATION_PORTRAIT) {
             Column(
                 modifier = modifier
                     .background(MaterialTheme.colorScheme.surfaceContainerLow)
