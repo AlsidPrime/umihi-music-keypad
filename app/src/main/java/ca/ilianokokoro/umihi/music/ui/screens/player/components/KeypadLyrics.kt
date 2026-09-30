@@ -18,6 +18,7 @@ import ca.ilianokokoro.umihi.music.core.managers.PlayerManager
 import ca.ilianokokoro.umihi.music.ui.components.keypad.KeypadButton
 import ca.ilianokokoro.umihi.music.ui.components.keypad.KeypadEntry
 import ca.ilianokokoro.umihi.music.ui.components.keypad.KeypadList
+import ca.ilianokokoro.umihi.music.ui.components.keypad.keypadBackAtLeftEdge
 import ca.ilianokokoro.umihi.music.ui.screens.player.LyricsState
 import ca.ilianokokoro.umihi.music.ui.screens.player.PlaybackProgress
 import ca.ilianokokoro.umihi.music.ui.screens.player.PlayerState
@@ -43,6 +44,7 @@ internal fun KeypadLyrics(uiState: PlayerState, progress: PlaybackProgress, onHi
     val currentLine = if (lyrics?.hasSynced == true) lyrics.indexOfCurrentLine(progress.position.toLong()) else -1
     Column(modifier.padding(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         KeypadButton(stringResource(R.string.keypad_hide_lyrics), onHide, Modifier.fillMaxWidth()
+            .keypadBackAtLeftEdge(onBack = onHide)
             .focusRequester(hideFocus).focusProperties {
                 down = targets[1]
                 up = FocusRequester.Cancel
@@ -57,7 +59,8 @@ internal fun KeypadLyrics(uiState: PlayerState, progress: PlaybackProgress, onHi
                         1 -> PlayerManager.currentController?.let { if (it.playWhenReady) it.pause() else it.play() }
                         2 -> PlayerManager.skipToNext()
                     }
-                }, Modifier.weight(1f).focusRequester(targets[index]).focusProperties {
+                }, Modifier.weight(1f).keypadBackAtLeftEdge(enabled = index == 0, onBack = onHide)
+                    .focusRequester(targets[index]).focusProperties {
                     up = hideFocus
                     down = lyricsFocus
                     left = targets.getOrNull(index - 1) ?: FocusRequester.Cancel

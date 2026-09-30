@@ -119,21 +119,29 @@ fun PlayerScreen(
                 bottom = 10.dp
             ),
         bottomBar = {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                listOf(
-                    R.string.keypad_previous,
-                    R.string.keypad_play_pause,
-                    R.string.keypad_next,
-                ).forEach { label ->
-                    Text(
-                        text = stringResource(label),
-                        modifier = Modifier.weight(1f),
+            Column {
+                if (useKeypadLayout) {
+                    Text(stringResource(R.string.keypad_player_navigation_hint),
+                        modifier = Modifier.fillMaxWidth(),
                         style = MaterialTheme.typography.labelSmall,
-                        textAlign = TextAlign.Center,
-                    )
+                        textAlign = TextAlign.Center)
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    listOf(
+                        R.string.keypad_previous,
+                        R.string.keypad_play_pause,
+                        R.string.keypad_next,
+                    ).forEach { label ->
+                        Text(
+                            text = stringResource(label),
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.labelSmall,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
                 }
             }
         },

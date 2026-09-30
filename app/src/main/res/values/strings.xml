@@ -1,4 +1,5 @@
 <resources>
+    <string name="keypad_player_navigation_hint">← Back at left edge</string>
     <string name="keypad_dialog_hint">↑↓ Select · OK Choose · ← Back</string>
     <string name="keypad_playlist_song_hint">OK Play · → Options · ← Back</string>
     <string name="keypad_required_title">Enter a title</string>

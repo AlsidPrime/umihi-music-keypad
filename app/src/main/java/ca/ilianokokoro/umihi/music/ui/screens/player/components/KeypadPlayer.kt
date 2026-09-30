@@ -25,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.Player
 import ca.ilianokokoro.umihi.music.R
 import ca.ilianokokoro.umihi.music.ui.components.keypad.KeypadButton
+import ca.ilianokokoro.umihi.music.ui.components.keypad.keypadBackAtLeftEdge
 import ca.ilianokokoro.umihi.music.core.helpers.ComposeHelper
 import ca.ilianokokoro.umihi.music.core.managers.PlayerManager
 import ca.ilianokokoro.umihi.music.extensions.toTimeString
@@ -122,6 +123,7 @@ internal fun KeypadPlayer(
                         text = action.label,
                         onClick = action.onClick,
                         modifier = Modifier.weight(1f)
+                            .keypadBackAtLeftEdge(enabled = column == 0, onBack = onClose)
                             .focusRequester(targets[row][column])
                             .onFocusChanged {
                                 if (it.isFocused) onControlFocused(targets[row][column])
