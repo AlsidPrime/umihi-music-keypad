@@ -22,13 +22,13 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
 @Composable
-internal fun KeypadButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+internal fun KeypadButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, compact: Boolean = false) {
     var focused by remember { mutableStateOf(false) }
     val bringIntoView = remember { BringIntoViewRequester() }
     val scope = rememberCoroutineScope()
     val shape = RoundedCornerShape(8.dp)
     Box(
-        modifier = modifier.heightIn(min = 36.dp)
+        modifier = modifier.heightIn(min = if (compact) 30.dp else 36.dp)
             .bringIntoViewRequester(bringIntoView)
             .onFocusChanged {
                 focused = it.isFocused
@@ -38,10 +38,10 @@ internal fun KeypadButton(text: String, onClick: () -> Unit, modifier: Modifier 
             .border(if (focused) 3.dp else 1.dp,
                 if (focused) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline, shape)
             .clickable(role = Role.Button, onClick = onClick)
-            .padding(horizontal = 4.dp, vertical = 6.dp),
+            .padding(horizontal = 4.dp, vertical = if (compact) 3.dp else 6.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(text, style = MaterialTheme.typography.labelMedium,
-            textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            textAlign = TextAlign.Center, maxLines = if (compact) 1 else 2, overflow = TextOverflow.Ellipsis)
     }
 }

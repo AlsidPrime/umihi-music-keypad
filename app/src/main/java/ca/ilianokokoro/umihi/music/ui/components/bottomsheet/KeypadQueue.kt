@@ -52,6 +52,14 @@ internal fun KeypadQueue(songs: List<Song>, currentIndex: Int, onClose: () -> Un
                 optionsUid = null
                 act(uid) { PlayerManager.seekToIndex(it); PlayerManager.currentController?.play() }
             },
+            KeypadEntry("next", stringResource(R.string.play_next), enabled = index != currentIndex) {
+                optionsUid = null
+                act(uid) { from ->
+                    val controller = PlayerManager.currentController ?: return@act
+                    val to = queuePlayNextIndex(from, controller.currentMediaItemIndex, controller.mediaItemCount)
+                    if (to != null && to != from) controller.moveMediaItem(from, to)
+                }
+            },
             KeypadEntry("up", stringResource(R.string.keypad_move_up), enabled = index > 0) { move(-1) },
             KeypadEntry("down", stringResource(R.string.keypad_move_down), enabled = index < songs.lastIndex) { move(1) },
             KeypadEntry("remove", stringResource(R.string.remove_from_queue)) {
@@ -69,4 +77,10 @@ internal fun queueEntryIndex(ids: List<String>, uid: String): Int? {
     if (uid.isBlank()) return null
     val index = ids.indexOf(uid)
     return index.takeIf { it >= 0 && ids.lastIndexOf(uid) == it }
+}
+
+/** Destination in the timeline after removing the selected entry. */
+internal fun queuePlayNextIndex(from: Int, current: Int, count: Int): Int? {
+    if (from !in 0 until count || current !in 0 until count || from == current) return null
+    return if (from < current) current else current + 1
 }

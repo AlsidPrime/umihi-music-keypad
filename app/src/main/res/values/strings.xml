@@ -268,4 +268,7 @@
     <string name="shortcuts_connected">Accessibility service connected</string>
     <string name="shortcuts_disconnected">Accessibility service disconnected</string>
     <string name="shortcuts_settings_unavailable">Cannot open Accessibility Settings on this phone.</string>
+    <string name="keypad_nav_find">Find</string>
+    <string name="keypad_nav_setup">Setup</string>
+    <string name="keypad_nav_now">Now</string>
 </resources>

@@ -20,8 +20,8 @@ import ca.ilianokokoro.umihi.music.ui.components.keypad.keypadPlayback
 internal fun KeypadNavigationBar(focus: KeypadNavigationFocus, onHome: () -> Unit,
     onSearch: () -> Unit, onSettings: () -> Unit, onPlayer: () -> Unit) {
     val targets = remember(focus) { listOf(focus.navigation, FocusRequester(), FocusRequester(), FocusRequester()) }
-    val actions = listOf(R.string.home to onHome, R.string.search to onSearch,
-        R.string.settings to onSettings, R.string.keypad_player to onPlayer)
+    val actions = listOf(R.string.home to onHome, R.string.keypad_nav_find to onSearch,
+        R.string.keypad_nav_setup to onSettings, R.string.keypad_nav_now to onPlayer)
     Row(Modifier.keypadPlayback().padding(4.dp), horizontalArrangement = Arrangement.spacedBy(3.dp)) {
         actions.forEachIndexed { index, (label, action) ->
             KeypadButton(stringResource(label), action, Modifier.weight(1f)
@@ -30,7 +30,7 @@ internal fun KeypadNavigationBar(focus: KeypadNavigationFocus, onHome: () -> Uni
                     right = targets.getOrNull(index + 1) ?: FocusRequester.Cancel
                     up = focus.content ?: FocusRequester.Default
                     down = FocusRequester.Cancel
-                })
+                }, compact = true)
         }
     }
 }
