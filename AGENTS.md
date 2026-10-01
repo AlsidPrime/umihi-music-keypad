@@ -54,11 +54,11 @@ Install with the user's Windows ADB path:
 
 The user's working folder is C:\Dev\umihi-music-keypad\umihi-music-keypad. These paths are convenience examples, not portable build configuration.
 
-Debug package: ca.ilianokokoro.umihi.music.keypad. Original package: ca.ilianokokoro.umihi.music. IMPORTANT: release currently retains the original applicationId because only debug adds .keypad. Before distributing a release, explicitly resolve fork package identity and signing rather than accidentally conflicting with upstream.
+All build types use package ca.ilianokokoro.umihi.music.keypad. Original package: ca.ilianokokoro.umihi.music. The source namespace remains upstream's namespace; do not rename source packages simply to change installation identity. See RELEASE.md for local signing and publication steps. Debug and release keys differ, so their APKs cannot update one another directly.
 
 Preserve the user's local Windows debug signing key for updates. A Linux-built debug APK is not a routine replacement: it can have a different signature and require uninstalling, losing app data/downloads. Never recommend uninstalling as the first response to a signature mismatch. Back up and agree on migration if necessary. For public releases, use a durable dedicated release key, keep it private/backed up, and maintain it across updates.
 
-Use the store flavor for development: it disables the upstream updater. Audit upstream repository/download references before enabling standalone updates or publishing releases. TinyWall previously blocked Java's network access; investigate firewall/proxy failures before rewriting Gradle versions.
+Use the store flavor for development and the initial public release. Both flavors disable the inherited updater until a fork-specific update feed is configured. TinyWall previously blocked Java's network access; investigate firewall/proxy failures before rewriting Gradle versions.
 
 Transient verification environments may need local proxy/trust-store/SDK configuration. Do not commit environment-specific local.properties, daemon-criteria removals, aapt2 overrides, or scratch paths. A prior Linux session used SDK 37 aapt2 because the Maven artifact download failed. Incremental compiler caches also produced duplicate declarations in that transient checkout; a clean build succeeded. Treat this as environment troubleshooting, not a reason to alter app logic.
 
@@ -125,10 +125,10 @@ The last app change passed a clean store debug APK build and all 20 unit tests: 
 
 For UI/control changes, give the user focused physical-phone checks. Preserve their confirmation that existing screens/Settings are satisfactory instead of reopening a broad overhaul without a reported problem. The last new visual polish/Play next action did not receive a separate detailed handset report; merge was explicitly authorized.
 
-Remaining optional work: user-facing controls/setup guide; clearer background setup/reboot status if a problem is found; diagnostic result retention; public-release packaging/documentation; custom front-screen graphics only if requested. No public signed APK release or stable release tag has been created as part of this handoff.
+The README now provides user-facing controls/setup guidance and RELEASE.md documents private signing and publication. Remaining optional work: clearer background setup/reboot status if a problem is found; diagnostic result retention; testing and publishing the owner-signed public preview; custom front-screen graphics only if requested. No permanent signing key, public signed APK release, or stable release tag has been created as part of this handoff.
 
 ## Public release considerations
 
-The GitHub repository is already public, but the inherited README/badges/download links advertise upstream, not this fork. Before promoting it, write an honest fork-specific README with screenshots, controls, tested-device list, installation/accessibility setup, limitations, and upstream attribution. Label other Android keypad phones as untested, not compatible by assumption. This is an unofficial YouTube Music client, not an official Google product or a promise of perpetual service compatibility.
+The GitHub repository is public and the README documents the fork's controls, installation, tested-device list, limitations, and upstream credits. Add current handset screenshots before wider promotion. Label other Android keypad phones as untested, not compatible by assumption. This is an unofficial YouTube Music client, not an official Google product or a promise of perpetual service compatibility.
 
 Inspect LICENSE and retain upstream copyright/license notices. Choose a distinct durable package identity, signing key, versioning/update source, and reproducible release workflow before posting installable APKs. Never publish the user's personal debug APK/signing material as the public release strategy. Keep credentials out of the repository. Prefer a small experimental GitHub release and voluntary device reports before wider distribution. Do not post to communities or contact people without explicit authorization.

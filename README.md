@@ -130,9 +130,9 @@ If ADB is not on PATH, use its full executable path. In PowerShell, a path conta
 
 Pull changes and rebuild using the same computer and signing key, then install with `adb install -r`. Do not uninstall just to update: uninstalling removes app data and downloads. A debug APK built on another computer may have a different signature and cannot replace your existing installation directly.
 
-The documented debug build uses package `ca.ilianokokoro.umihi.music.keypad`, so it can coexist with original Umihi. The **store** flavor disables the inherited updater; the name does not mean this fork is listed in an app store.
+Both debug and release builds use package `ca.ilianokokoro.umihi.music.keypad`, so it can coexist with original Umihi. The **store** flavor disables the inherited updater; the name does not mean this fork is listed in an app store.
 
-Public release packaging is still pending. Release builds currently retain upstream's package name; fork package identity and a permanent release signing key need to be settled before distributing those builds.
+Release builds use the fork package name and have the inherited updater disabled. Follow [RELEASE.md](RELEASE.md) to create a private signing key and build a signed APK. No public APK has been published yet.
 
 ## Downloads, quality, and storage
 
