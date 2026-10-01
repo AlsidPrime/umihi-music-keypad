@@ -15,7 +15,6 @@ As of 2026-10-01 UTC, PR #1 is merged into main (merge e69ecd3aee6a88f1b9768d51e
 - Use focused commits. For future feature work, start a branch from current main and prepare a reviewable PR. Do not assume the former feature branch is still the destination.
 - The user prefers autonomous implementation, working commits, and a build they can pull and test. Avoid repeated approval requests for ordinary implementation. Merge/publish only when authorized for that task; PR #1's merge authorization is already fulfilled.
 - Report what changed, build/test results, and what still requires physical-device testing. A successful APK build does not prove key delivery, display rendering, or audio behavior on the handset.
-- When providing Windows commands in chat, put each command on its own plain-text line; code fences have rendered badly for this user.
 - Never expose account tokens, private device data, signing passwords, or keystores in commits/logs. Do not add agent attribution to commits.
 
 ## Target handset and verified constraints
