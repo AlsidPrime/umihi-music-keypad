@@ -1,304 +1,169 @@
-[![Latest release](https://img.shields.io/github/v/release/ilianoKokoro/umihi-music?style=for-the-badge)](https://github.com/ilianoKokoro/umihi-music/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/ilianoKokoro/umihi-music/total?style=for-the-badge&color=E53935)](https://github.com/ilianoKokoro/umihi-music/releases/latest)
-[![RB Status](https://shields.rbtlog.dev/simple/ca.ilianokokoro.umihi.music?style=for-the-badge)](https://github.com/ilianoKokoro/umihi-music/releases/latest)
-[![Discord Server](https://dcbadge.limes.pink/api/server/https://discord.gg/mSPeHS5cF6)](https://discord.gg/mSPeHS5cF6)
-[![Crowdin](https://img.shields.io/badge/Crowdin-translate%20project-2E3340?style=for-the-badge&logo=crowdin)](https://crowdin.com/project/umihi-music)
+# Umihi Keypad
 
-# Umihi Music
+**YouTube Music for Android flip phones with physical keypads.**
 
-<img src="https://raw.githubusercontent.com/ilianoKokoro/umihi-music/refs/heads/main/app/src/main/res/mipmap-xxxhdpi/icon_round.webp" height="72">
+Umihi Keypad is a fork of [Umihi Music](https://github.com/ilianoKokoro/umihi-music), adapted for small screens, D-pads, and number keys. It started with a ZTE/nubia Cymbal 2: music played well, but touchscreen controls were hard to reach without a mouse. This fork adds compact screens and physical-key controls for everyday listening.
 
-A lightweight **Material YouTube Music player** for Android, built with **Kotlin** and **Jetpack
-Compose**.
+Built with Kotlin and Jetpack Compose. An unofficial client, independent of Google and YouTube.
 
-<a href="https://trendshift.io/repositories/58582?utm_source=repository-badge&amp;utm_medium=badge&amp;utm_campaign=badge-repository-58582" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/repositories/58582" alt="ilianoKokoro%2Fumihi-music | Trendshift" width="250" height="55"/></a>
+## What changes in this fork?
 
-<!--
-<a href="https://www.producthunt.com/products/umihi-music?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-umihi&#0045;music" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1015448&theme=dark&t=1757640480731" alt="Umihi&#0032;Music - A&#0032;simple&#0032;material&#0032;Youtube&#0032;music&#0032;player&#0032;for&#0032;Android | Product Hunt" style="width: 250px; height: 54px; display: block" width="250" height="54" /></a> -->
+- Compact Home, Search, playlists, player, lyrics, queue, and Settings screens.
+- Visible selection, predictable D-pad navigation, and quick Back actions without scrolling through an entire playlist.
+- Previous, play/pause, and next shortcuts on the number keys while the app is open.
+- Optional volume-button playback shortcuts that work with the lid closed on the tested Cymbal 2.
+- Queue actions: Play, Play next, Move earlier, Move later, and Remove.
+- Separate streaming and download quality choices, storage controls, sleep timer, and playback speed controls.
+- Traditional T9 text entry, with number shortcuts kept out of text editors.
+- A distinct keypad-and-music-note icon and startup logo.
 
-Designed for simplicity and smooth performance, Umihi Music lets you enjoy your favorite tracks
-effortlessly.
+Upstream features include searching and streaming music, YouTube Music playlists, playlist management, and downloads for offline playback. Larger screens retain the existing touchscreen layouts.
 
-## Download 📥
+## Project status and compatibility
 
-<table>
-  <tbody>
-     <tr>
-      <td align="center" colspan="2">
-        <a href="https://github.com/ilianoKokoro/umihi-music/releases/latest">
-          <img src="https://i.postimg.cc/sxWv2J29/badge-github.png" height="70" alt="Get Umihi Music on GitHub">
-        </a>
-      </td>
-    </tr>
-    <tr>
-     <td align="center">
-        <a href="https://f-droid.org/en/packages/ca.ilianokokoro.umihi.music/index.html">
-          <img src="https://i.postimg.cc/W40DXrrQ/get-it-on-ezgif-com-compress-png.png" height="50" alt="Get Umihi Music on F-droid">
-        </a>
-      </td>
-      <td align="center">
-        <a href="https://apt.izzysoft.de/packages/ca.ilianokokoro.umihi.music">
-          <img src="https://i.postimg.cc/MHMKVZLQ/image(1).png" height="50" alt="Get Umihi Music on IzzyOnDroid">
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td align="center">
-        <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/ilianoKokoro/umihi-music/">
-          <img src="https://i.postimg.cc/X7JRYDCT/badge-obtainium.png" height="50" alt="Get Umihi Music on Obtainium">
-        </a>
-      </td>
-      <td align="center">
-        <a href="https://www.openapk.net/umihi-music/ca.ilianokokoro.umihi.music/">
-          <img src="https://www.openapk.net/images/openapk-badge.png" height="75" alt="Get Umihi Music on OpenAPK">
-        </a>
-      </td>
-    </tr>
-  </tbody>
-</table>
+This is an experimental fork with working handset testing, not a broadly tested release. **There is no published APK release for this fork yet.** Build from source using the instructions below. APKs on upstream Umihi's download pages do not contain these keypad changes.
 
-## FAQ ❓
+| Device | Testing |
+| --- | --- |
+| ZTE/nubia Cymbal 2, model Z2335L | Main keypad screens and Settings tested; closed-lid volume shortcuts and native front-screen track updates confirmed |
+| Other Android keypad phones | Not yet tested; device reports welcome |
 
-### What is the difference between the normal APK and the
+Tested firmware: Z2335LGV1.0.0B38, Android 10, 32-bit ARM, 240 × 320 main screen. The app requires Android 7.0 or newer (API 24) and includes armeabi-v7a support. Your phone must allow installing Android APKs.
 
-`store` apk and which one should I download ?
+Compact layouts are selected by screen size: the shorter dimension must be at most 360 dp and the longer at most 480 dp. A phone having a keypad does not automatically mean it will select this layout or support all background shortcuts.
 
-_The `store` version is the app version that is hosted on `F-droid` and has the updater removed. If
-you download the app directly from GitHub, download the normal version._
+## Keypad controls
 
-## Support 🛟
+### While using the app
 
-Join the Discord server to get update pings, know about announcements and get support about problems
+| Key | Action |
+| --- | --- |
+| Up / Down | Select and scroll through list entries |
+| OK / centre key | Activate the selected entry |
+| Right on a song with options | Open its action menu |
+| Left / Back | Return or dismiss, according to the screen |
+| 4 | Previous track |
+| 5 | Play / Pause |
+| 6 | Next track |
 
-<a href="https://discord.gg/mSPeHS5cF6"><img src="https://img.builtbybit.com/qvILgDj0iYP6hLQQ5ZN4BQYilVv3ZGAZl_UsuYDHZDQ/resize:fill:2000/format:webp/aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL2ludGVyZ3Jhdi9kZXZpbnMtYmFkZ2VzL2Fzc2V0cy9jb3p5L3NvY2lhbC9kaXNjb3JkLXBsdXJhbF92ZWN0b3Iuc3Zn" height="60"></a>
+The 4/5/6 shortcuts apply on noneditable controls. In text editors those keys remain available for typing with T9.
 
-## Features ✨
+In the player, Left moves between controls. Press Left again when already at the leftmost control to close the player. In lyrics, Left returns to the player. The bottom navigation is **Home · Find · Setup · Now**; Now opens the player.
 
-<ul>
-  <li>Play your YouTube / YT Music playlists</li>
-  <li>Create and delete playlists in app</li>
-  <li>Add and remove songs from your playlists</li>
-  <li>Download music for offline playback</li>
-  <li>Choose where to store your downloads</li>
-  <li>Search and play music without logging in</li>
-  <li>Send data back to Google option for recommendations</li>
-  <li>Integrated sleep timer, speed controls and volume slider</li>
-  <li>Brand accounts login</li>
-  <li>Lightweight and fast</li>
-  <li>Clean Material Expressive design</li>
-  <li>Optimized for modern Android devices</li>
-  <li>Full Android Auto support</li>
-  <li>No ads</li>
-</ul>
+In the queue, **Play** starts the selected song immediately. **Play next** moves that existing queue entry immediately after the current song, without interrupting playback or adding a duplicate.
 
-### Future features (In development)
+### Background and closed-lid controls
 
-- [ ] Lyrics in the player
+Background shortcuts are optional and off by default:
 
-## Screenshots 🖼️
+1. Open **Setup → General → Background playback shortcuts**.
+2. Turn the app option on.
+3. Open Accessibility settings from that dialog and enable Umihi Keypad's accessibility service.
+4. Disable competing key-filtering services, such as KeyMapper, while testing these shortcuts.
+5. Start playback in Umihi Keypad, then leave the app or close the lid.
 
-<p float="left">
-  <img src="https://raw.githubusercontent.com/ilianoKokoro/umihi-music/refs/heads/main/fastlane/metadata/android/en-US/images/phoneScreenshots/home.png" width="200" />
-  <img src="https://raw.githubusercontent.com/ilianoKokoro/umihi-music/refs/heads/main/fastlane/metadata/android/en-US/images/phoneScreenshots/playlist.png" width="200" />
-  <img src="https://raw.githubusercontent.com/ilianoKokoro/umihi-music/refs/heads/main/fastlane/metadata/android/en-US/images/phoneScreenshots/search.png" width="200" />
-  <img src="https://raw.githubusercontent.com/ilianoKokoro/umihi-music/refs/heads/main/fastlane/metadata/android/en-US/images/phoneScreenshots/player.png" width="200" />
-  <img src="https://raw.githubusercontent.com/ilianoKokoro/umihi-music/refs/heads/main/fastlane/metadata/android/en-US/images/phoneScreenshots/queue.png" width="200" />
-  <img src="https://raw.githubusercontent.com/ilianoKokoro/umihi-music/refs/heads/main/fastlane/metadata/android/en-US/images/phoneScreenshots/settings.png" width="200" />
+| Gesture | Action |
+| --- | --- |
+| Tap Volume Up / Down | Change music volume on release |
+| Hold Volume Up | Next track |
+| Hold Volume Down | Previous track |
+| Press both volume keys together | Play / Pause |
 
-</p>
+The service handles volume-key gestures and controls this app's playback session. It does not require root or notification-listener access. These gestures were confirmed with the lid closed on Z2335L; other phones may deliver keys differently. Check service enablement and shortcut behavior after restarting your phone.
 
-## Beta build 🪲
+## Typing and the front screen
 
-**⚠️ This build may not be stable as it is not a release ⚠️**
+[Traditional T9](https://github.com/sspanak/tt9) works for text entry on the tested phone. Install and configure it separately; it is not bundled with Umihi Keypad.
 
-[![Beta APK Build](https://img.shields.io/github/actions/workflow/status/ilianoKokoro/umihi-music/build-release.yml?style=for-the-badge&label=Beta%20Build)](https://github.com/ilianoKokoro/umihi-music/actions/workflows/build-release.yml)
+The Cymbal 2's built-in front-screen interface already shows the current song title and updates when the track changes. This is the phone's native media integration, not a custom Umihi display.
 
-<a href="https://github.com/ilianoKokoro/umihi-music/releases/download/beta/UmihiMusic.apk"><img src="https://i.postimg.cc/sxWv2J29/badge-github.png" height="80"></a>
+**Front display test** in App info is an optional diagnostic. Its custom drawing attempt is rejected by the tested firmware. It is not needed for native song titles or closed-lid controls; custom graphics remain an experiment.
 
-## Credits 🎨
+## Build and install
 
-**App logo**: Made by [Apelleru](https://www.twitch.tv/apelleru)
+### Prerequisites
 
-## Translations 🉐
+- Git and an Android development environment, including the Android SDK.
+- Access to the SDK platform/build tools required by [app/build.gradle.kts](app/build.gradle.kts), currently API 37 and build-tools 37.0.0.
+- A Java environment suitable for the Gradle wrapper. The repository's daemon configuration requests JetBrains Java 21; Gradle may provision it on the first run.
+- Android Platform Tools (ADB), USB debugging enabled on the phone, and authorization for your computer.
 
-<a href="https://crowdin.com/?utm_term=click-badge-add-on">
-  <picture>
-    <source
-      media="(prefers-color-scheme: dark)"
-      srcset="https://badges.crowdin.net/badge/light/crowdin-on-dark.png"
-    />
-    <source
-      media="(prefers-color-scheme: light)"
-      srcset="https://badges.crowdin.net/badge/dark/crowdin-on-light.png"
-    />
-    <img
-      src="https://badges.crowdin.net/badge/dark/crowdin-on-light.png"
-      width="140"
-      height="40"
-      alt="Crowdin | Agile localization for tech companies"
-    />
-  </picture>
-</a>
+Clone the fork:
 
-[![Crowdin](https://badges.crowdin.net/umihi-music/localized.svg)](https://crowdin.com/project/umihi-music)
+```sh
+git clone https://github.com/AlsidPrime/umihi-music-keypad.git
+cd umihi-music-keypad
+```
 
-Thank you to all the people who helped translate Umihi Music
+Build on Windows PowerShell:
 
-<!-- CROWDIN-CONTRIBUTORS-START -->
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="top">
-        <a href="https://crowdin.com/profile/dsyncronized"><img alt="logo" style="width: 48px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/17343406/medium/00dc04ef0d827840a659dbbf90108fb7.png" />
-          <br />
-          <sub><b>dsyncronized</b></sub></a>
-        <br />
-        <sub><b>892 words</b></sub>
-        <br /><sub><b><code title="Indonesian">id</code></b></sub>
-      </td>
-      <td align="center" valign="top">
-        <a href="https://crowdin.com/profile/Ngoloc2k4"><img alt="logo" style="width: 48px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/14376790/medium/377e386305520b65a52aa16294ad65f0.jpeg" />
-          <br />
-          <sub><b>Kim Lộc Ngô</b></sub>
-          <br />
-          <sub><b>(Ngoloc2k4)</b></sub></a>
-        <br />
-        <sub><b>739 words</b></sub>
-        <br /><sub><b><code title="Korean">ko</code></b>, <b><code title="Vietnamese">vi</code></b></sub>
-      </td>
-      <td align="center" valign="top">
-        <a href="https://crowdin.com/profile/frittusk"><img alt="logo" style="width: 48px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/17619264/medium/e784698c2018599cbae52322b897cd1f.png" />
-          <br />
-          <sub><b>Tusk</b></sub>
-          <br />
-          <sub><b>(frittusk)</b></sub></a>
-        <br />
-        <sub><b>569 words</b></sub>
-        <br /><sub><b><code title="LOLCAT">lol</code></b>, <b><code title="Tagalog">tl</code></b></sub>
-      </td>
-      <td align="center" valign="top">
-        <a href="https://crowdin.com/profile/yuchin1189"><img alt="logo" style="width: 48px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/16261450/medium/7d89d94d25742303e301f1f2106e86ba_default.png" />
-          <br />
-          <sub><b>yuchin1189</b></sub></a>
-        <br />
-        <sub><b>485 words</b></sub>
-        <br /><sub><b><code title="Chinese Simplified">zh-CN</code></b>, <b><code title="Chinese Traditional">zh-TW</code></b></sub>
-      </td>
-      <td align="center" valign="top">
-        <a href="https://crowdin.com/profile/Vladik01-11"><img alt="logo" style="width: 48px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/16623259/medium/0b581be050429f886660aae12f86ee51.jpeg" />
-          <br />
-          <sub><b>Vladik01-11</b></sub></a>
-        <br />
-        <sub><b>1195 words</b></sub>
-        <br /><sub><b><code title="Russian">ru</code></b></sub>
-      </td>
-    </tr>
-    <tr>
-      <td align="center" valign="top">
-        <a href="https://crowdin.com/profile/Mickael81"><img alt="logo" style="width: 48px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/16589059/medium/65fcdfc7892c0e034a5b24fcba44b471_default.png" />
-          <br />
-          <sub><b>Mickael81</b></sub></a>
-        <br />
-        <sub><b>1056 words</b></sub>
-        <br /><sub><b><code title="French">fr</code></b></sub>
-      </td>
-      <td align="center" valign="top">
-        <a href="https://crowdin.com/profile/Alinayejin"><img alt="logo" style="width: 48px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/14440508/medium/f02d53d5d23fc5f2d367c0c319829c6c.jpg" />
-          <br />
-          <sub><b>Alina Ye-jin</b></sub>
-          <br />
-          <sub><b>(Alinayejin)</b></sub></a>
-        <br />
-        <sub><b>384 words</b></sub>
-        <br /><sub><b><code title="Korean">ko</code></b></sub>
-      </td>
-      <td align="center" valign="top">
-        <a href="https://crowdin.com/profile/j.bosch"><img alt="logo" style="width: 48px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/17639020/medium/d7c3db7648b323eeb5e39a3a37f110ec_default.png" />
-          <br />
-          <sub><b>j.bosch</b></sub></a>
-        <br />
-        <sub><b>289 words</b></sub>
-        <br /><sub><b><code title="Catalan">ca</code></b></sub>
-      </td>
-      <td align="center" valign="top">
-        <a href="https://crowdin.com/profile/DefinitelyRus"><img alt="logo" style="width: 48px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/17880897/medium/f3615934c30de959c6fdc01a4836d60d.jpeg" />
-          <br />
-          <sub><b>Rus</b></sub>
-          <br />
-          <sub><b>(DefinitelyRus)</b></sub></a>
-        <br />
-        <sub><b>234 words</b></sub>
-        <br /><sub><b><code title="Tagalog">tl</code></b></sub>
-      </td>
-      <td align="center" valign="top">
-        <a href="https://crowdin.com/profile/Akiro9982"><img alt="logo" style="width: 48px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/17830919/medium/4accb4df3c6bcde6946ffa9b3f803b1e.png" />
-          <br />
-          <sub><b>Kevin Escobar</b></sub>
-          <br />
-          <sub><b>(Akiro9982)</b></sub></a>
-        <br />
-        <sub><b>177 words</b></sub>
-        <br /><sub><b><code title="Spanish">es-ES</code></b></sub>
-      </td>
-    </tr>
-    <tr>
-      <td align="center" valign="top">
-        <a href="https://crowdin.com/profile/Smashik"><img alt="logo" style="width: 48px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/16846271/medium/c9f3394aa690c57089ee523b37b7fdc7.png" />
-          <br />
-          <sub><b>Smashik</b></sub></a>
-        <br />
-        <sub><b>48 words</b></sub>
-        <br /><sub><b><code title="Russian">ru</code></b></sub>
-      </td>
-      <td align="center" valign="top">
-        <a href="https://crowdin.com/profile/jackgr545"><img alt="logo" style="width: 48px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/17760733/medium/5190b04c9be7f16d7d9417fcf00806ab.png" />
-          <br />
-          <sub><b>jackgr545</b></sub></a>
-        <br />
-        <sub><b>44 words</b></sub>
-        <br /><sub><b><code title="Chinese Traditional">zh-TW</code></b></sub>
-      </td>
-      <td align="center" valign="top">
-        <a href="https://crowdin.com/profile/GerOriki"><img alt="logo" style="width: 48px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/16268376/medium/da00e54b08cd40348231d92873a0cd0a_default.png" />
-          <br />
-          <sub><b>Ori</b></sub>
-          <br />
-          <sub><b>(GerOriki)</b></sub></a>
-        <br />
-        <sub><b>32 words</b></sub>
-        <br /><sub><b><code title="Hebrew">he</code></b></sub>
-      </td>
-      <td align="center" valign="top">
-        <a href="https://crowdin.com/profile/corrigo"><img alt="logo" style="width: 48px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/17457288/medium/ef9cc844691730917c6a23cf8a950089.jpg" />
-          <br />
-          <sub><b>corrigo</b></sub></a>
-        <br />
-        <sub><b>29 words</b></sub>
-        <br /><sub><b><code title="French">fr</code></b></sub>
-      </td>
-      <td align="center" valign="top">
-        <a href="https://crowdin.com/profile/devbyben"><img alt="logo" style="width: 48px" src="https://crowdin-static.cf-downloads.crowdin.com/avatar/17895293/medium/e280352f89653b8a3a23c915a7da75eb.png" />
-          <br />
-          <sub><b>Benoît</b></sub>
-          <br />
-          <sub><b>(devbyben)</b></sub></a>
-        <br />
-        <sub><b>6 words</b></sub>
-        <br /><sub><b><code title="French">fr</code></b></sub>
-      </td>
-    </tr>
-  </tbody>
-</table>
-<!-- CROWDIN-CONTRIBUTORS-END -->
+```powershell
+.\gradlew.bat :app:assembleStoreDebug
+```
 
-<img alt="Translation status" src="https://badges.awesome-crowdin.com/translation-14810202-878334.png" />
+Or on Linux/macOS:
 
-## Star History ✨
+```sh
+./gradlew :app:assembleStoreDebug
+```
 
-<a href="https://www.star-history.com/?type=date&repos=ilianoKokoro%2Fumihi-music">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=ilianoKokoro/umihi-music&type=date&theme=dark&legend=top-left&sealed_token=k_RkJanYCwu4XqU4GYKLbX0FkxLGJLx4_dPWi_AfySTEj9eqsvnx628ff-p2z5Z0RLN1M0lmcT3wbr6bRG0__Wmie_CLrdkR7NEQ1VI9ZpgzI6Li2_uR-g" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=ilianoKokoro/umihi-music&type=date&legend=top-left&sealed_token=k_RkJanYCwu4XqU4GYKLbX0FkxLGJLx4_dPWi_AfySTEj9eqsvnx628ff-p2z5Z0RLN1M0lmcT3wbr6bRG0__Wmie_CLrdkR7NEQ1VI9ZpgzI6Li2_uR-g" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=ilianoKokoro/umihi-music&type=date&legend=top-left&sealed_token=k_RkJanYCwu4XqU4GYKLbX0FkxLGJLx4_dPWi_AfySTEj9eqsvnx628ff-p2z5Z0RLN1M0lmcT3wbr6bRG0__Wmie_CLrdkR7NEQ1VI9ZpgzI6Li2_uR-g" />
- </picture>
-</a>
+The APK is written to:
+
+```text
+app/build/outputs/apk/store/debug/UmihiMusic-store.apk
+```
+
+With ADB on your PATH, install or update it from the repository root:
+
+```sh
+adb devices
+adb install -r app/build/outputs/apk/store/debug/UmihiMusic-store.apk
+```
+
+If ADB is not on PATH, use its full executable path. In PowerShell, a path containing spaces needs the call operator, for example:
+
+```powershell
+& "C:\path\to\platform-tools\adb.exe" install -r ".\app\build\outputs\apk\store\debug\UmihiMusic-store.apk"
+```
+
+### Updating without losing downloads
+
+Pull changes and rebuild using the same computer and signing key, then install with `adb install -r`. Do not uninstall just to update: uninstalling removes app data and downloads. A debug APK built on another computer may have a different signature and cannot replace your existing installation directly.
+
+The documented debug build uses package `ca.ilianokokoro.umihi.music.keypad`, so it can coexist with original Umihi. The **store** flavor disables the inherited updater; the name does not mean this fork is listed in an app store.
+
+Public release packaging is still pending. Release builds currently retain upstream's package name; fork package identity and a permanent release signing key need to be settled before distributing those builds.
+
+## Downloads, quality, and storage
+
+Streaming and download quality are configured separately:
+
+| Quality | Selection |
+| --- | --- |
+| Best | Best available stream |
+| Balanced | Available stream at or below a 128 kbps target |
+| Data saver | Available stream at or below a 64 kbps target |
+
+These are selection targets, not guarantees that every track has that bitrate. If no stream fits a limited target, the lowest known bitrate is used. Existing downloaded tracks keep their original quality; changing the preference affects new downloads. Cache-limit changes take effect after restarting the app.
+
+## Contributing and reporting problems
+
+Read [AGENTS.md](AGENTS.md) for the development handoff, navigation rules, source map, device findings, and signing constraints. Keep changes focused and preserve both keypad navigation and T9 text entry.
+
+When reporting a problem, include the phone model, Android version, firmware, app version, screen size, and exact steps. For shortcut problems, include whether the lid was closed, the accessibility service was enabled, and another key-filtering service was running. Redact credentials and account information from logs.
+
+Run the store debug build and unit tests for relevant code changes:
+
+```powershell
+.\gradlew.bat :app:assembleStoreDebug :app:testStoreDebugUnitTest
+```
+
+Physical-device checks remain necessary for focus, text entry, audio, and closed-lid key delivery. YouTube service changes can also affect playback independently of keypad controls.
+
+## Credits and license
+
+Based on [Umihi Music by ilianoKokoro](https://github.com/ilianoKokoro/umihi-music) and its contributors. Thank you to the upstream developers and translators for the music player this fork builds on. See the [upstream project](https://github.com/ilianoKokoro/umihi-music) and [translation project](https://crowdin.com/project/umihi-music) for their credits and work.
+
+The original Umihi logo was made by [Apelleru](https://www.twitch.tv/apelleru); inherited original logo assets remain in the source. This fork uses a separate keypad-and-music-note launcher design.
+
+Licensed under the GNU General Public License v3; see [LICENSE](LICENSE). Existing upstream copyright and license notices remain applicable.
