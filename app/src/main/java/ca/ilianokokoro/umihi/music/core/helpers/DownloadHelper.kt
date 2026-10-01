@@ -114,7 +114,7 @@ object DownloadHelper {
             return@withContext outputFile.absolutePath
         }
 
-        val url = YoutubeDataExtractor.getSongPlayerUrl(context, song)
+        val url = YoutubeDataExtractor.getSongPlayerUrl(context, song, forDownload = true)
 
         var lastException: Exception? = null
 

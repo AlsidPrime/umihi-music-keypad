@@ -100,7 +100,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
+        ca.ilianokokoro.umihi.music.services.KeypadAccessibilityService.appVisible = true
         PlayerManager.connectController(this)
+    }
+
+    override fun onStop() {
+        ca.ilianokokoro.umihi.music.services.KeypadAccessibilityService.appVisible = false
+        super.onStop()
     }
 
     override fun onDestroy() {

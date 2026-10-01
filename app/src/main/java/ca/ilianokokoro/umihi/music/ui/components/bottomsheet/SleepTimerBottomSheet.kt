@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ca.ilianokokoro.umihi.music.R
+import ca.ilianokokoro.umihi.music.ui.components.keypad.isKeypadScreen
 import ca.ilianokokoro.umihi.music.core.Constants
 import ca.ilianokokoro.umihi.music.ui.components.SheetHeader
 import ca.ilianokokoro.umihi.music.ui.components.materialu.MaterialUButton
@@ -44,6 +45,12 @@ fun SleepTimerBottomSheet(
     onStartEndOfSong: () -> Unit,
     onCancelTimer: () -> Unit,
 ) {
+    if (isKeypadScreen()) {
+        KeypadSleepTimer(activeRemainingSeconds, onStartTimer, onStartEndOfSong, onCancelTimer) {
+            changeVisibility(false)
+        }
+        return
+    }
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
 

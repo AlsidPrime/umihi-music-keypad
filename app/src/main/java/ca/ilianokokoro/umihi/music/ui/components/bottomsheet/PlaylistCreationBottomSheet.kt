@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import ca.ilianokokoro.umihi.music.R
+import ca.ilianokokoro.umihi.music.ui.components.keypad.isKeypadScreen
 import ca.ilianokokoro.umihi.music.models.enums.Privacy
 import ca.ilianokokoro.umihi.music.ui.components.SheetHeader
 import ca.ilianokokoro.umihi.music.ui.components.materialu.MaterialUButton
@@ -42,6 +43,10 @@ fun PlaylistCreationBottomSheet(
     onConfirm: (title: String, description: String, privacy: Privacy) -> Unit,
     onClose: () -> Unit
 ) {
+    if (isKeypadScreen()) {
+        KeypadPlaylistCreation(onConfirm, onClose)
+        return
+    }
     var title by rememberSaveable { mutableStateOf("") }
     var description by rememberSaveable { mutableStateOf("") }
     var privacy by rememberSaveable { mutableStateOf(Privacy.PRIVATE) }

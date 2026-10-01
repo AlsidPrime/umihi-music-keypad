@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.compose.runtime.Immutable
 import ca.ilianokokoro.umihi.music.data.repositories.DatastoreRepository.UpdateChannel
 import ca.ilianokokoro.umihi.music.models.enums.ThemeMode
+import ca.ilianokokoro.umihi.music.models.enums.AudioQuality
 
 @Immutable
 data class UmihiSettings(
@@ -21,7 +22,10 @@ data class UmihiSettings(
     val thumbnailCacheSizeMB: Int,
     val appVolume: Int,
     val themeMode: ThemeMode,
-    val downloadLocation: Uri?
+    val downloadLocation: Uri?,
+    val streamingQuality: AudioQuality = AudioQuality.BEST,
+    val downloadQuality: AudioQuality = AudioQuality.BEST,
+    val backgroundShortcuts: Boolean = false,
 ) {
     val canTrack: Boolean get() = sendPlaybackData && !cookies.isEmpty()
 }

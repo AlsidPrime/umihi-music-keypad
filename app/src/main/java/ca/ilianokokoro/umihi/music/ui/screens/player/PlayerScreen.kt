@@ -9,6 +9,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
@@ -31,27 +32,33 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ca.ilianokokoro.umihi.music.R
 import ca.ilianokokoro.umihi.music.core.Constants
+import ca.ilianokokoro.umihi.music.ui.components.keypad.isKeypadScreen
+import ca.ilianokokoro.umihi.music.ui.components.keypad.keypadPlayback
 import ca.ilianokokoro.umihi.music.models.Song
 import ca.ilianokokoro.umihi.music.ui.components.SquareImage
 import ca.ilianokokoro.umihi.music.ui.components.bottomsheet.QueueBottomSheet
@@ -60,6 +67,7 @@ import ca.ilianokokoro.umihi.music.ui.components.bottomsheet.SpeedSelectorBottom
 import ca.ilianokokoro.umihi.music.ui.components.bottomsheet.VolumeBottomSheet
 import ca.ilianokokoro.umihi.music.ui.components.song.ExplicitBadge
 import ca.ilianokokoro.umihi.music.ui.screens.player.components.PlayerControls
+import ca.ilianokokoro.umihi.music.ui.screens.player.components.KeypadPlayer
 import ca.ilianokokoro.umihi.music.ui.screens.player.components.TopPlayer
 
 @Composable
@@ -73,33 +81,82 @@ fun PlayerScreen(
     )
 ) {
     val uiState = playerViewModel.uiState.collectAsStateWithLifecycle().value
-    val orientation = LocalConfiguration.current.orientation
+    val configuration = LocalConfiguration.current
+    val orientation = configuration.orientation
+    val useKeypadLayout = isKeypadScreen()
     val currentSong = uiState.queue.getOrNull(uiState.currentIndex)
-
-    // Close the screen if resumed with an empty queue
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME && uiState.queue.isEmpty() && currentSong == null) {
-                onBack()
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    LaunchedEffect(uiState.queue.isEmpty()) {
+        if (uiState.queue.isEmpty()) onBack()
     }
+
+    // Dialogs own their input scope; no shortcuts are attached to text fields.
+    val shortcutsEnabled = !uiState.isSpeedSelectorShown && !uiState.isQueueModalShown &&
+        !uiState.isSleepTimerModalShown && !uiState.showVolumeDialog
+    val keypadFocusRequester = remember { FocusRequester() }
+    val playFocusRequester = remember { FocusRequester() }
+    var keypadReturnFocus by remember(uiState.isLoggedIn) { mutableStateOf<FocusRequester?>(null) }
+    val windowFocused = LocalWindowInfo.current.isWindowFocused
+    LaunchedEffect(shortcutsEnabled, windowFocused, useKeypadLayout, uiState.lyricsShown) {
+        if (shortcutsEnabled && windowFocused) {
+            if (useKeypadLayout) {
+                val target = if (uiState.lyricsShown) playFocusRequester else keypadReturnFocus ?: playFocusRequester
+                target.requestFocus()
+            } else keypadFocusRequester.requestFocus()
+        }
+    }
+
     val playbackProgress by playerViewModel.playbackProgress.collectAsState()
 
 
     Scaffold(
         modifier = Modifier
+            .keypadPlayback(shortcutsEnabled)
+            .focusRequester(keypadFocusRequester)
+            .focusable(enabled = shortcutsEnabled)
             .padding(
                 start = 8.dp,
                 end = 8.dp,
                 bottom = 10.dp
-            )
-
+            ),
+        bottomBar = {
+            Column {
+                if (useKeypadLayout) {
+                    Text(stringResource(R.string.keypad_player_navigation_hint),
+                        modifier = Modifier.fillMaxWidth(),
+                        style = MaterialTheme.typography.labelSmall,
+                        textAlign = TextAlign.Center)
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    listOf(
+                        R.string.keypad_previous,
+                        R.string.keypad_play_pause,
+                        R.string.keypad_next,
+                    ).forEach { label ->
+                        Text(
+                            text = stringResource(label),
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.labelSmall,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                }
+            }
+        },
     ) { paddingValues ->
-        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+        if (useKeypadLayout) {
+            KeypadPlayer(
+                uiState = uiState,
+                progress = playbackProgress,
+                playerViewModel = playerViewModel,
+                initialFocusRequester = playFocusRequester,
+                onControlFocused = { keypadReturnFocus = it },
+                onClose = onBack,
+                modifier = modifier.fillMaxSize().padding(paddingValues),
+            )
+        } else if (orientation == Configuration.ORIENTATION_PORTRAIT) {
             Column(
                 modifier = modifier
                     .background(MaterialTheme.colorScheme.surfaceContainerLow)

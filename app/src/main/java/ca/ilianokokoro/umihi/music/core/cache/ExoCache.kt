@@ -33,7 +33,8 @@ class ExoCache private constructor(context: Context) {
     }
 
     fun clear() {
-        SimpleCache.delete(cacheDir, databaseProvider)
+        // Playback retains this cache instance, so remove its resources through its live index.
+        cache.keys.toList().forEach { cache.removeResource(it) }
     }
 
     fun release() {

@@ -44,6 +44,7 @@ import ca.ilianokokoro.umihi.music.ui.components.LoginBanner
 import ca.ilianokokoro.umihi.music.ui.components.bottomsheet.PlaylistCreationBottomSheet
 import ca.ilianokokoro.umihi.music.ui.components.materialu.MaterialUButton
 import ca.ilianokokoro.umihi.music.ui.components.playlist.PlaylistCard
+import ca.ilianokokoro.umihi.music.ui.components.keypad.isKeypadScreen
 import ca.ilianokokoro.umihi.music.ui.navigation.viewmodels.SharedViewModel
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -79,6 +80,20 @@ fun HomeScreen(
                 sharedViewModel.consumeDeletedPlaylists()
             }
         }
+    }
+
+    if (isKeypadScreen()) {
+        KeypadHomeScreen(uiState, onPlaylistPressed, onLoginPressed,
+            onCreate = { createPlaylistOpen = true }, onRefresh = homeViewModel::refreshPlaylists,
+            onRetry = homeViewModel::getPlaylists)
+        if (createPlaylistOpen) {
+            PlaylistCreationBottomSheet(onClose = { createPlaylistOpen = false },
+                onConfirm = { title, description, privacy ->
+                    homeViewModel.createPlaylist(title, description, privacy)
+                    createPlaylistOpen = false
+                })
+        }
+        return
     }
 
     FadingStatusBarWrapper { statusBarHeight ->

@@ -27,6 +27,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import ca.ilianokokoro.umihi.music.R
+import ca.ilianokokoro.umihi.music.ui.components.keypad.KeypadTextDialog
+import ca.ilianokokoro.umihi.music.ui.components.keypad.KeypadEntry
+import ca.ilianokokoro.umihi.music.ui.components.keypad.isKeypadScreen
 import ca.ilianokokoro.umihi.music.core.helpers.LogHelper
 import ca.ilianokokoro.umihi.music.core.managers.VersionManager
 import ca.ilianokokoro.umihi.music.models.Version
@@ -58,6 +61,76 @@ fun UpdateDialog(scope: CoroutineScope) {
 
     if (showDialog) {
         val releaseInfo = data.value ?: return
+        val downloadAbortedMessage = stringResource(R.string.download_aborted_message)
+        val onDownload: () -> Unit = {
+            scope.launch {
+                try {
+                    val granted = VersionManager.requestInstallPermissions(
+                        activity = context as ComponentActivity
+                    )
+
+                    if (!granted) {
+                        isDownloading = false
+                        return@launch
+                    }
+
+                    isDownloading = true
+                    downloadProgress = 0f
+
+                    val apkFile = VersionManager.downloadApk(
+                        context = context,
+                        release = releaseInfo,
+                        onProgress = { progress ->
+                            downloadProgress = progress
+                        }
+                    )
+
+                    VersionManager.installApk(
+                        context = context,
+                        apkFile = apkFile
+                    )
+                } catch (ex: Exception) {
+                    val message = if (ex is SocketException) {
+                        downloadAbortedMessage
+                    } else {
+                        ex.message.toString()
+                    }
+
+                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                    LogHelper.printe(ex.toString())
+                }
+
+                isDownloading = false
+                showDialog = false
+            }
+        }
+        val onIgnore: () -> Unit = {
+            scope.launch {
+                VersionManager.ignoreUpdate(
+                    version = Version(
+                        name = if (releaseInfo.isBeta) {
+                            releaseInfo.commit
+                        } else {
+                            releaseInfo.versionName
+                        }
+                    )
+                )
+                showDialog = false
+            }
+        }
+        if (isKeypadScreen()) {
+            val title = stringResource(if (releaseInfo.isBeta) R.string.beta_update_available else R.string.update_available)
+            KeypadTextDialog(title,
+                if (isDownloading) stringResource(R.string.downloading_update) + " " + "${(downloadProgress * 100).toInt()}%"
+                else stringResource(R.string.new_version_body, releaseInfo.tagName.take(8)) + "\n\n" + releaseInfo.cleanBody,
+                onDismiss = { showDialog = false }, dismissEnabled = !isDownloading,
+                actions = listOf(
+                    KeypadEntry("close", stringResource(R.string.close), enabled = !isDownloading) { showDialog = false },
+                    KeypadEntry("download", stringResource(R.string.download), enabled = !isDownloading, onClick = onDownload),
+                    KeypadEntry("ignore", stringResource(R.string.ignore), enabled = !isDownloading, onClick = onIgnore),
+                ))
+            return
+        }
         AlertDialog(
             onDismissRequest = { showDialog = false },
             title = {
@@ -120,52 +193,8 @@ fun UpdateDialog(scope: CoroutineScope) {
             },
             confirmButton = {
                 if (!isDownloading) {
-                    val downloadAbortedMessage = stringResource(R.string.download_aborted_message)
                     TextButton(
-                        onClick = {
-                            scope.launch {
-                                try {
-                                    val granted = VersionManager.requestInstallPermissions(
-                                        activity = context as ComponentActivity
-                                    )
-
-                                    if (!granted) {
-                                        isDownloading = false
-                                        return@launch
-                                    }
-
-                                    isDownloading = true
-                                    downloadProgress = 0f
-
-                                    val apkFile = VersionManager.downloadApk(
-                                        context = context,
-                                        release = releaseInfo,
-                                        onProgress = { progress ->
-                                            downloadProgress = progress
-                                        }
-                                    )
-
-                                    VersionManager.installApk(
-                                        context = context,
-                                        apkFile = apkFile
-                                    )
-                                } catch (ex: Exception) {
-                                    val message = if (ex is SocketException) {
-                                        downloadAbortedMessage
-                                    } else {
-                                        ex.message.toString()
-                                    }
-
-                                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-                                    LogHelper.printe(ex.toString())
-                                }
-
-                                isDownloading = false
-                                showDialog = false
-                            }
-
-
-                        },
+                        onClick = onDownload,
                         shapes = ButtonDefaults.shapes()
                     ) { Text(stringResource(R.string.download)) }
                 }
@@ -173,20 +202,7 @@ fun UpdateDialog(scope: CoroutineScope) {
             },
             dismissButton = {
                 if (!isDownloading) {
-                    TextButton(onClick = {
-                        scope.launch {
-                            VersionManager.ignoreUpdate(
-                                version = Version(
-                                    name = if (releaseInfo.isBeta) {
-                                        releaseInfo.commit
-                                    } else {
-                                        releaseInfo.versionName
-                                    }
-                                )
-                            )
-                            showDialog = false
-                        }
-                    }, shapes = ButtonDefaults.shapes()) { Text(stringResource(R.string.ignore)) }
+                    TextButton(onClick = onIgnore, shapes = ButtonDefaults.shapes()) { Text(stringResource(R.string.ignore)) }
                 }
             },
             properties = DialogProperties(

@@ -39,11 +39,13 @@ import ca.ilianokokoro.umihi.music.ui.components.LoadingAnimation
 import ca.ilianokokoro.umihi.music.ui.components.SearchBar
 import ca.ilianokokoro.umihi.music.ui.components.bottomsheet.addtoplaylist.AddToPlaylistBottomSheet
 import ca.ilianokokoro.umihi.music.ui.components.song.SongListItem
+import ca.ilianokokoro.umihi.music.ui.components.keypad.isKeypadScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
     application: Application,
+    onOpenPlayer: () -> Unit = {},
     searchViewModel: SearchViewModel = viewModel(
         factory =
             SearchViewModel.Factory(application = application)
@@ -53,6 +55,16 @@ fun SearchScreen(
     val uiState = searchViewModel.uiState.collectAsStateWithLifecycle().value
     val isLoggedIn = uiState.isLoggedIn
     var addToPlaylistSong by remember { mutableStateOf<Song?>(null) }
+
+    if (isKeypadScreen()) {
+        KeypadSearchScreen(uiState, searchViewModel,
+            onAddToPlaylist = { addToPlaylistSong = it }, onOpenPlayer = onOpenPlayer)
+        addToPlaylistSong?.let { song ->
+            AddToPlaylistBottomSheet(song = song, application = application,
+                onClose = { addToPlaylistSong = null })
+        }
+        return
+    }
 
 
     val focusRequester = remember { FocusRequester() }
