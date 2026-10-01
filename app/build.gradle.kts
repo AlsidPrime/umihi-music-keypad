@@ -36,7 +36,7 @@ android {
     buildToolsVersion = "37.0.0"
 
     defaultConfig {
-        applicationId = "ca.ilianokokoro.umihi.music"
+        applicationId = "ca.ilianokokoro.umihi.music.keypad"
         minSdk = 24
         targetSdk = 37
         versionCode = appVersionCode
@@ -65,7 +65,8 @@ android {
         create("standalone") {
             isDefault = true
             dimension = "version"
-            buildConfigField("boolean", "UPDATER_ENABLED", "true")
+            // No fork update feed is configured; never offer upstream APKs.
+            buildConfigField("boolean", "UPDATER_ENABLED", "false")
         }
 
         create("store") {
@@ -90,7 +91,6 @@ android {
 
         debug {
             isDebuggable = true
-            applicationIdSuffix = ".keypad"
         }
 
         create("diagnostic") {
