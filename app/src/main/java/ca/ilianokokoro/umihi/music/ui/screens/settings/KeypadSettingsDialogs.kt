@@ -108,6 +108,29 @@ internal fun KeypadSettingsDialogs(state: SettingsState, settings: UmihiSettings
                     KeypadEntry("choose", stringResource(R.string.keypad_choose_folder)) { onPickFolder(settings.downloadLocation); close() },
                 ))
         }
+        state.showShortcutsPrompt -> {
+            val context = LocalContext.current
+            fun close() { viewModel.updateShowShortcutsPrompt(false) }
+            val enabled = settings.backgroundShortcuts
+            val connected by ca.ilianokokoro.umihi.music.services.KeypadAccessibilityService.connectionState.collectAsState()
+            KeypadTextDialog(stringResource(R.string.background_shortcuts_title),
+                stringResource(R.string.background_shortcuts_description) + "\n\n" +
+                    stringResource(if (connected) R.string.shortcuts_connected else R.string.shortcuts_disconnected), ::close, listOf(
+                    KeypadEntry("cancel", stringResource(R.string.cancel), onClick = ::close),
+                    KeypadEntry("toggle", stringResource(if (enabled) R.string.keypad_off else R.string.keypad_on)) {
+                        viewModel.updateSetting(PreferenceKeys.BACKGROUND_SHORTCUTS, !enabled)
+                        close()
+                    },
+                    KeypadEntry("settings", stringResource(R.string.accessibility_settings)) {
+                        val intent = android.content.Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                        intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                        runCatching { context.startActivity(intent) }.onFailure {
+                            android.widget.Toast.makeText(context, R.string.shortcuts_settings_unavailable, android.widget.Toast.LENGTH_LONG).show()
+                        }
+                        close()
+                    },
+                ))
+        }
     }
 }
 

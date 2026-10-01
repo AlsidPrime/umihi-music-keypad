@@ -59,6 +59,7 @@ class DatastoreRepository(private val context: Context) {
         val DOWNLOAD_LOCATION = stringPreferencesKey(Constants.Datastore.DOWNLOAD_LOCATION)
         val STREAMING_QUALITY = stringPreferencesKey("streaming_audio_quality")
         val DOWNLOAD_QUALITY = stringPreferencesKey("download_audio_quality")
+        val BACKGROUND_SHORTCUTS = booleanPreferencesKey("background_shortcuts")
     }
 
     suspend fun <T> save(key: Preferences.Key<T>, value: T) {
@@ -114,6 +115,7 @@ class DatastoreRepository(private val context: Context) {
             downloadLocation = downloadLocation,
             streamingQuality = AudioQuality.fromString(it[PreferenceKeys.STREAMING_QUALITY]),
             downloadQuality = AudioQuality.fromString(it[PreferenceKeys.DOWNLOAD_QUALITY]),
+            backgroundShortcuts = it[PreferenceKeys.BACKGROUND_SHORTCUTS] ?: false,
         )
     }
 

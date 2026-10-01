@@ -25,6 +25,7 @@ data class UmihiSettings(
     val downloadLocation: Uri?,
     val streamingQuality: AudioQuality = AudioQuality.BEST,
     val downloadQuality: AudioQuality = AudioQuality.BEST,
+    val backgroundShortcuts: Boolean = false,
 ) {
     val canTrack: Boolean get() = sendPlaybackData && !cookies.isEmpty()
 }

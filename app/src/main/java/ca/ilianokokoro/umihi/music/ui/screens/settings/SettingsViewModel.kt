@@ -281,6 +281,10 @@ class SettingsViewModel(
         _uiState.update { it.copy(showDownloadLocationDialog = show) }
     }
 
+    fun updateShowShortcutsPrompt(show: Boolean) {
+        _uiState.update { it.copy(showShortcutsPrompt = show) }
+    }
+
     fun onDownloadFolderPicked(uri: Uri?) {
         uri ?: return
 

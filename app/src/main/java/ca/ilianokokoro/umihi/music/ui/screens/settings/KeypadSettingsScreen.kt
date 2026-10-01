@@ -31,6 +31,7 @@ private enum class SettingsPage { DOWNLOADS, PLAYBACK, STORAGE, ACCOUNT, GENERAL
 internal fun KeypadSettingsScreen(state: SettingsState, viewModel: SettingsViewModel,
     onBack: () -> Unit, onOpenAuth: () -> Unit, onPickFolder: (Uri?) -> Unit) {
     val context = LocalContext.current
+    var showFrontDiagnostics by rememberSaveable { mutableStateOf(false) }
     var page by rememberSaveable { mutableStateOf<SettingsPage?>(null) }
     var qualityForDownloads by rememberSaveable { mutableStateOf<Boolean?>(null) }
     var explanation by remember { mutableStateOf<Pair<String, String>?>(null) }
@@ -38,10 +39,10 @@ internal fun KeypadSettingsScreen(state: SettingsState, viewModel: SettingsViewM
     val listFocus = remember { FocusRequester() }
     val backFocus = remember { FocusRequester() }
     val settings = (state.screenState as? ScreenState.Success)?.settings
-    val modalOpen = qualityForDownloads != null || explanation != null || state.showThemeSelectorSheet ||
+    val modalOpen = showFrontDiagnostics || qualityForDownloads != null || explanation != null || state.showThemeSelectorSheet ||
         state.showUpdateChannelSheet || state.showDownloadDeleteConfirm || state.showCacheSizeInputSheet ||
         state.showCacheClearConfirm || state.showLoginClearConfirm || state.showHiddenPlaylistsSheet ||
-        state.showDiagnosticsLogsSheet || state.showDownloadLocationDialog
+        state.showDiagnosticsLogsSheet || state.showDownloadLocationDialog || state.showShortcutsPrompt
     fun goBack() { if (page != null) page = null else onBack() }
     BackHandler(enabled = !modalOpen, onBack = ::goBack)
     fun explain(title: String, text: String) { explanation = title to text }
@@ -114,8 +115,13 @@ internal fun KeypadSettingsScreen(state: SettingsState, viewModel: SettingsViewM
                         state.hiddenPlaylists.size.toString()) { viewModel.updateShowHiddenPlaylistsSheet(true) })
                     add(toggleSetting("awake", R.string.keep_screen_on_title, R.string.keep_screen_on_title_description,
                         settings.keepScreenOn, ::explain, viewModel::updateKeepScreenOnSetting))
+                    add(KeypadEntry("shortcuts", stringResource(R.string.background_shortcuts_title),
+                        stringResource(if (settings.backgroundShortcuts) R.string.keypad_on else R.string.keypad_off)) {
+                        viewModel.updateShowShortcutsPrompt(true)
+                    })
                 }
                 SettingsPage.INFO -> {
+                    add(KeypadEntry("front-display", stringResource(R.string.front_display_diagnostics)) { showFrontDiagnostics = true })
                     val title = stringResource(R.string.current_version)
                     val version = VersionManager.getVersionName()
                     add(KeypadEntry("version", title, version) { explain(title, version) })
@@ -167,6 +173,7 @@ internal fun KeypadSettingsScreen(state: SettingsState, viewModel: SettingsViewM
                 }, onClose = { qualityForDownloads = null })
         }
     }
+    if (showFrontDiagnostics) ca.ilianokokoro.umihi.music.ui.screens.diagnostics.FrontScreenDiagnostics { showFrontDiagnostics = false }
     explanation?.let { (title, text) -> KeypadTextDialog(title, text, { explanation = null }) }
 }
 

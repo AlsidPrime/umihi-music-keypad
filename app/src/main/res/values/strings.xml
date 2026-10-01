@@ -258,4 +258,14 @@
     <string name="lyrics">Lyrics</string>
     <string name="no_lyrics_found">No lyrics found</string>
 
+    <string name="accessibility_service_description">Provides background media playback controls via volume long-press.</string>
+    <string name="background_shortcuts_title">Background Playback Shortcuts</string>
+    <string name="background_shortcuts_description">While Umihi is in the background with a loaded song: hold Volume Up for Next; hold Volume Down for Previous; press both volume buttons together for Play/Pause. Short taps change music volume on release. Enable the Umihi Keypad accessibility service in Android Settings and turn this option on. Disable KeyMapper key filtering when testing; only one service can filter keys. Screen-off delivery depends on the phone firmware.</string>
+    <string name="accessibility_settings">Accessibility Settings</string>
+    <string name="front_display_diagnostics">Front display test</string>
+    <string name="front_display_start">Start 60-second test</string>
+    <string name="front_display_stop">Stop test</string>
+    <string name="shortcuts_connected">Accessibility service connected</string>
+    <string name="shortcuts_disconnected">Accessibility service disconnected</string>
+    <string name="shortcuts_settings_unavailable">Cannot open Accessibility Settings on this phone.</string>
 </resources>
