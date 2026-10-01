@@ -6,6 +6,20 @@ Umihi Keypad is a fork of [Umihi Music](https://github.com/ilianoKokoro/umihi-mu
 
 Built with Kotlin and Jetpack Compose. An unofficial client, independent of Google and YouTube.
 
+## Download the preview
+
+**[Download Umihi Keypad APK](https://github.com/AlsidPrime/umihi-music-keypad/releases/download/v1.15.1-keypad-preview.1/UmihiMusic-store.apk)** · [Release notes](https://github.com/AlsidPrime/umihi-music-keypad/releases/tag/v1.15.1-keypad-preview.1)
+
+Version: **1.15.1-keypad-preview.1** (the app displays `1.15.1-keypad-beta-store`). This is a prerelease. The signed release APK has not yet been tested on a handset; keypad features were tested in development builds on the Z2335L.
+
+Download the APK to an Android phone that permits sideloading, or install it with ADB. Background controls require the accessibility setup described below. Existing debug installations cannot update directly to this release because the signing certificates differ; do not uninstall a working installation without a backup/migration plan.
+
+APK SHA-256:
+
+```text
+812EA6BFD4963EA74AC6211C27A1D1C0F7D95C02575EDE3A0DC40C42E4145B33
+```
+
 ## What changes in this fork?
 
 - Compact Home, Search, playlists, player, lyrics, queue, and Settings screens.
@@ -21,7 +35,7 @@ Upstream features include searching and streaming music, YouTube Music playlists
 
 ## Project status and compatibility
 
-This is an experimental fork with working handset testing, not a broadly tested release. **There is no published APK release for this fork yet.** Build from source using the instructions below. APKs on upstream Umihi's download pages do not contain these keypad changes.
+This is an experimental fork with a public preview, not a broadly tested release. Download the APK above or build from source using the instructions below. APKs on upstream Umihi's download pages do not contain these keypad changes.
 
 | Device | Testing |
 | --- | --- |
@@ -132,7 +146,7 @@ Pull changes and rebuild using the same computer and signing key, then install w
 
 Both debug and release builds use package `ca.ilianokokoro.umihi.music.keypad`, so it can coexist with original Umihi. The **store** flavor disables the inherited updater; the name does not mean this fork is listed in an app store.
 
-Release builds use the fork package name and have the inherited updater disabled. Follow [RELEASE.md](RELEASE.md) to create a private signing key and build a signed APK. No public APK has been published yet.
+Release builds use the fork package name and have the inherited updater disabled. Follow [RELEASE.md](RELEASE.md) to create a private signing key and build a signed APK. The first signed preview is available in the download section above.
 
 ## Downloads, quality, and storage
 
